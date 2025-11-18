@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.payment_system.dto.RefundRequestDto;
 import com.sparta.payment_system.entity.Payment;
+import com.sparta.payment_system.entity.PaymentStatus;
 import com.sparta.payment_system.entity.Refund;
 import com.sparta.payment_system.repository.PaymentRepository;
 import com.sparta.payment_system.repository.RefundRepository;
@@ -54,8 +55,8 @@ public class RefundController {
 			Payment payment = paymentOptional.get();
 
 			// 2. 환불 가능 상태 확인
-			if (payment.getStatus() != Payment.PaymentStatus.PAID &&
-				payment.getStatus() != Payment.PaymentStatus.PARTIALLY_REFUNDED) {
+			if (payment.getStatus() != PaymentStatus.PAID &&
+				payment.getStatus() != PaymentStatus.PARTIALLY_REFUNDED) {
 				return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST)
 					.body("환불할 수 없는 결제 상태입니다. 현재 상태: " + payment.getStatus()));
 			}
@@ -83,15 +84,14 @@ public class RefundController {
 							refund.setPaymentId(payment.getPaymentId());
 							refund.setAmount(refundAmount);
 							refund.setReason(reason);
-							refund.setStatus(Refund.RefundStatus.COMPLETED);
 
 							refundRepository.save(refund);
 
 							// 7. 결제 상태 업데이트
 							if (refundAmount.compareTo(payment.getAmount()) >= 0) {
-								payment.setStatus(Payment.PaymentStatus.REFUNDED);
+								payment.setStatus(PaymentStatus.REFUNDED);
 							} else {
-								payment.setStatus(Payment.PaymentStatus.PARTIALLY_REFUNDED);
+								payment.setStatus(PaymentStatus.PARTIALLY_REFUNDED);
 							}
 							paymentRepository.save(payment);
 

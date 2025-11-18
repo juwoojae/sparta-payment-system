@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.payment_system.entity.Order;
 import com.sparta.payment_system.entity.Payment;
+import com.sparta.payment_system.entity.PaymentStatus;
 import com.sparta.payment_system.repository.OrderItemRepository;
 import com.sparta.payment_system.repository.OrderRepository;
 import com.sparta.payment_system.repository.PaymentRepository;
@@ -67,7 +68,7 @@ public class PaymentController {
 	// 결제 취소 API
 	@PostMapping("/cancel")
 	public Mono<ResponseEntity<String>> cancelPaymentByPaymentId(@RequestBody Map<String, String> request) {
-		String paymentId = request.get("paymentId");
+		Long paymentId = request.get("paymentId");
 		String reason = request.getOrDefault("reason", "사용자 요청에 의한 취소");
 
 		return paymentService.cancelPayment(paymentId, reason)
@@ -84,7 +85,7 @@ public class PaymentController {
 	@GetMapping("/paid")
 	public ResponseEntity<List<Payment>> getPaidPayments() {
 		try {
-			List<Payment> paidPayments = paymentRepository.findByStatus(Payment.PaymentStatus.PAID);
+			List<Payment> paidPayments = paymentRepository.findByStatus(PaymentStatus.PAID);
 			return ResponseEntity.ok(paidPayments);
 		} catch (Exception e) {
 			System.err.println("PAID 결제 목록 조회 오류: " + e.getMessage());
@@ -99,12 +100,12 @@ public class PaymentController {
 		try {
 			// 주문을 통해 사용자별 결제 조회
 			List<Order> userOrders = orderRepository.findByUserId(userId);
-			List<String> orderIds = userOrders.stream()
+			List<Long> orderIds = userOrders.stream()
 				.map(Order::getOrderId)
 				.toList();
 
 			List<Payment> paidPayments = paymentRepository.findByOrderIdInAndStatus(orderIds,
-				Payment.PaymentStatus.PAID);
+				PaymentStatus.PAID);
 			return ResponseEntity.ok(paidPayments);
 		} catch (Exception e) {
 			System.err.println("사용자별 PAID 결제 목록 조회 오류: " + e.getMessage());
