@@ -553,7 +553,6 @@
     const STORE_ID = 'store-d757cc0a-53f5-4353-84e7-a92087500a9e';
     const CHANNEL_KEY = 'channel-key-ef2999ea-6779-4758-8569-26c499dbd106';
 
-
     let USER_ID = null;
     let authToken = null;
     let currentUser = null;
@@ -828,156 +827,12 @@
         }
     }
 
-    // 멤버십 정보 조회
-    async function loadMembershipInfo() {
-        if (!USER_ID) {
-            displayMembershipInfo('Normal', 0);
-            return;
-        }
-
-        try {
-            const response = await authenticatedFetch(`${API_BASE_URL}/api/membership/user/${USER_ID}/info`);
-            if (!response.ok) {
-                // API 호출 실패 시 기본값 표시
-                console.warn('멤버십 정보 조회 실패, 기본값 사용:', response.status);
-                displayMembershipInfo('Normal', 0);
-                return;
-            }
-
-            const data = await response.json();
-            membershipInfo = data;
-
-            // 멤버십 등급 표시
-            const levelName = data.level?.name || 'Normal';
-            const totalPaymentAmount = data.totalPaymentAmount || 0;
-
-            displayMembershipInfo(levelName, totalPaymentAmount);
-        } catch (error) {
-            console.error('멤버십 정보 조회 오류:', error);
-            // 에러 발생 시에도 기본값 표시
-            displayMembershipInfo('Normal', 0);
-        }
-    }
-
-    // 멤버십 정보 표시 함수
-    function displayMembershipInfo(levelName, totalPaymentAmount) {
-        document.getElementById('membershipLevel').textContent = levelName;
-        document.getElementById('totalPaymentAmount').textContent = Math.floor(totalPaymentAmount).toLocaleString();
-
-        // 멤버십 배지 스타일 적용
-        const badge = document.getElementById('membershipBadge');
-        badge.className = 'membership-badge';
-        badge.style.display = 'inline-block';
-
-        // 기존 클래스 제거
-        badge.classList.remove('membership-normal', 'membership-vip', 'membership-vvip');
-
-        // 등급에 따른 스타일 적용
-        if (levelName === 'Normal') {
-            badge.classList.add('membership-normal');
-        } else if (levelName === 'VIP') {
-            badge.classList.add('membership-vip');
-        } else if (levelName === 'VVIP') {
-            badge.classList.add('membership-vvip');
-        } else {
-            badge.classList.add('membership-normal');
-        }
-    }
 
     // 결제 내역 조회
     async function loadPaymentHistory() {
-        if (!USER_ID) {
-            showResult('error', '❌ 인증 필요', '로그인이 필요합니다.');
-            return;
-        }
-
-        try {
-            showResult('info', '⏳ 조회 중...', '결제 내역을 조회하고 있습니다...');
-
-            const response = await authenticatedFetch(`${API_BASE_URL}/api/membership/user/${USER_ID}/payments`);
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-            const completedOrders = data.completedOrders || [];
-            const paidPayments = data.paidPayments || [];
-            const cancelledOrders = data.cancelledOrders || [];
-            const totalPaidAmount = data.totalPaidAmount || 0;
-
-            // 결제 내역 HTML 생성
-            let historyHTML = '';
-
-            if (completedOrders.length === 0) {
-                historyHTML = '<p style="text-align: center; color: #666;">결제 내역이 없습니다.</p>';
-            } else {
-                historyHTML += `<div style="margin-bottom: 16px; padding: 12px; background: white; border-radius: 8px;">`;
-                historyHTML += `<strong>총 결제 금액: ${Math.floor(totalPaidAmount).toLocaleString()}원</strong><br>`;
-                historyHTML += `<small style="color: #666;">완료 주문: ${completedOrders.length}건 | 취소 주문: ${cancelledOrders.length}건</small>`;
-                historyHTML += `</div>`;
-
-                completedOrders.forEach((order, index) => {
-                    const payment = paidPayments.find(p => p.orderId === order.orderId);
-                    const paymentAmount = payment ? payment.amount : order.totalAmount;
-
-                    historyHTML += `<div class="payment-item">`;
-                    historyHTML += `<div class="payment-item-info">`;
-                    historyHTML += `<div><strong>주문 #${order.orderId}</strong></div>`;
-                    historyHTML += `<div style="font-size: 12px; color: #666; margin-top: 4px;">`;
-                    historyHTML += `${new Date(order.orderedAt).toLocaleString('ko-KR')} | `;
-                    historyHTML += `포인트 사용: ${order.pointsUsed || 0}P`;
-                    historyHTML += `</div>`;
-                    historyHTML += `</div>`;
-                    historyHTML += `<div class="payment-item-amount">${Math.floor(paymentAmount).toLocaleString()}원</div>`;
-                    historyHTML += `</div>`;
-                });
-            }
-
-            document.getElementById('paymentHistoryContent').innerHTML = historyHTML;
-            document.getElementById('paymentHistorySection').style.display = 'block';
-
-            showResult('success', '✅ 결제 내역 조회 완료',
-                `총 ${completedOrders.length}건의 결제 내역을 조회했습니다.`, data);
-        } catch (error) {
-            console.error('결제 내역 조회 오류:', error);
-            showResult('error', '❌ 결제 내역 조회 실패', `오류: ${error.message}`);
-        }
-    }
-
-    // 포인트 충전 (100,000 포인트)
-    async function chargePoints() {
-        if (!USER_ID) {
-            showResult('error', '❌ 인증 필요', '로그인이 필요합니다.');
-            return;
-        }
-
-        try {
-            showResult('info', '⏳ 포인트 충전 중...', '100,000 포인트를 충전하고 있습니다...');
-
-            const response = await authenticatedFetch(`${API_BASE_URL}/api/points/charge/${USER_ID}?points=100000&description=테스트용 포인트 충전`, {
-                method: 'POST'
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(errorText);
-            }
-
-            const data = await response.json();
-
-            showResult('success', '✅ 포인트 충전 완료!',
-                `100,000 포인트가 충전되었습니다!<br>새로운 잔액: ${data.newBalance.toLocaleString()} 포인트`,
-                data);
-
-            // 포인트 잔액 새로고침
-            setTimeout(() => {
-                loadPointBalance();
-            }, 1000);
-
-        } catch (error) {
-            console.error('포인트 충전 오류:', error);
-            showResult('error', '❌ 포인트 충전 실패', `오류: ${error.message}`);
-        }
+        const response = await authenticatedFetch(`${API_BASE_URL}/api/membership/user/${USER_ID}/payments`);
+        const data = await response.json();
+        console.log(data);
     }
 
     // 상품 정보 로드
