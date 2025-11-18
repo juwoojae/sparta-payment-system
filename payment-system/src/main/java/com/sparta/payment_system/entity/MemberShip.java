@@ -1,6 +1,6 @@
 package com.sparta.payment_system.entity;
 
-import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,36 +11,35 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "orders")
 @Getter
+@Table(name = "memberships")
 @NoArgsConstructor
-public class Order extends BaseTimeEntity {
-
+public class MemberShip extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "order_id")
-	private Long orderId;
+	@Column(name = "membership_id")
+	private Long MemberShipId;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id", nullable = false)
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
 	private User user;
 
-	@Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
-	private BigDecimal totalAmount;
-
+	//회원
 	@Enumerated(EnumType.STRING)
-	@Column(name = "status", nullable = false, length = 50)
-	private OrderStatus status;
+	Grade point;
 
-	public Order(User user, BigDecimal totalAmount, OrderStatus status) {
+	@Column(name = "expires_at")
+	private LocalDateTime expiresAt;
+
+	public MemberShip(User user, Grade point, LocalDateTime expiresAt) {
 		this.user = user;
-		this.totalAmount = totalAmount;
-		this.status = status;
+		this.point = point;
+		this.expiresAt = expiresAt;
 	}
 }
