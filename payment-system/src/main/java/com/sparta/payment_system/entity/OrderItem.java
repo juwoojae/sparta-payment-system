@@ -13,12 +13,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "order_items")
 @Getter
-@Setter
 @NoArgsConstructor
 public class OrderItem {
 
@@ -40,5 +38,12 @@ public class OrderItem {
 
 	@Column(name = "price", nullable = false, precision = 10, scale = 2)
 	private BigDecimal price;
+
+	public OrderItem(Order order, Product product, Integer quantity, BigDecimal price) {
+		this.order = order;
+		this.product = product;
+		this.quantity = quantity;
+		this.price = price;
+	}
 
 }
