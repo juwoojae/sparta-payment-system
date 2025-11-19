@@ -2,6 +2,7 @@ package com.sparta.payment_system.entity;
 
 import java.math.BigDecimal;
 
+import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -38,9 +40,14 @@ public class Order extends BaseTimeEntity {
 	@Column(name = "status", nullable = false, length = 50)
 	private OrderStatus status;
 
+	@Builder
 	public Order(User user, BigDecimal totalAmount, OrderStatus status) {
 		this.user = user;
 		this.totalAmount = totalAmount;
 		this.status = status;
+	}
+
+	public void updateTotalAmount(BigDecimal totalAmount) {
+		this.totalAmount = totalAmount;
 	}
 }

@@ -5,20 +5,21 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
-    
-    List<Product> findByNameContainingIgnoreCase(String name);
-    
-    List<Product> findByPriceBetween(Double minPrice, Double maxPrice);
-    
-    List<Product> findByStockGreaterThan(Integer stock);
-    
+
+	Optional<Product> findById(Long userId);
+
+    //List<Product> findByNameContainingIgnoreCase(String name);
+
+    //List<Product> findByPriceBetween(Double minPrice, Double maxPrice);
+
+    //List<Product> findByStockGreaterThan(Integer stock);
+
     // 새로 추가된 메서드들
-    List<Product> findByStatus(Product.ProductStatus status);
-    
-    List<Product> findByCategory(String category);
-    
-    List<Product> findByStockLessThanEqual(Integer stock);
+    //List<Product> findByStatus(ProductStatus status);
+
+    //List<Product> findByStockLessThanEqual(Integer stock);
 }

@@ -1,0 +1,31 @@
+package com.sparta.payment_system;
+
+import java.math.BigDecimal;
+
+import org.springframework.stereotype.Component;
+
+import com.sparta.payment_system.entity.Product;
+import com.sparta.payment_system.entity.User;
+import com.sparta.payment_system.repository.OrderRepository;
+import com.sparta.payment_system.repository.ProductRepository;
+import com.sparta.payment_system.repository.UserRepository;
+
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+
+@Component
+@RequiredArgsConstructor
+public class TestDataInit {
+
+	private final ProductRepository productRepository;
+	private final UserRepository userRepository;
+
+	@PostConstruct
+	public void init(){
+		productRepository.save(new Product("아메리카노",new BigDecimal(1500),8,"와이리 밍밍하노"));
+		productRepository.save(new Product("아이스티",new BigDecimal(2000),10,"커피를 못먹는"));
+		productRepository.save(new Product("아샷추",new BigDecimal(1800),5,"아메리카노에 샷 추가"));
+
+		userRepository.save(new User("test@naver.com","test", "주우재"));
+	}
+}

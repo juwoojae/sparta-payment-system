@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -39,11 +40,15 @@ public class OrderItem {
 	@Column(name = "price", nullable = false, precision = 10, scale = 2)
 	private BigDecimal price;
 
-	public OrderItem(Order order, Product product, Integer quantity, BigDecimal price) {
+	@Column(name = "total_price")
+	private BigDecimal totalPrice;
+
+	@Builder
+	public OrderItem(Order order, Product product, Integer quantity, BigDecimal price,  BigDecimal totalPrice) {
 		this.order = order;
 		this.product = product;
 		this.quantity = quantity;
 		this.price = price;
+		this.totalPrice = totalPrice;
 	}
-
 }
