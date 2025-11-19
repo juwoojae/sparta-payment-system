@@ -11,14 +11,14 @@ public class CreateUserResponse {
     private Long userId;
     private String email;
     private String passwordHash;
-    private String name;
+    private String userName;
     private LocalDateTime createdAt;
 
     public CreateUserResponse(Long id, String email, String passwordHash, String name, LocalDateTime createdAt) {
         this.userId = id;
         this.email = email;
         this.passwordHash = passwordHash;
-        this.name = name;
+        this.userName = name;
         this.createdAt = createdAt;
     }
 }

@@ -8,5 +8,5 @@ import lombok.NoArgsConstructor;
 public class CreateUserRequest {
     private String email;
     private String passwordHash;
-    private String name;
+    private String userName;
 }
