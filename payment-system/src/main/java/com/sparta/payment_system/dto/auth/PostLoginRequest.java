@@ -7,5 +7,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PostLoginRequest {
     private String email;
-    private String passwordHash;
+    private String password;
 }
