@@ -12,11 +12,15 @@ import com.sparta.payment_system.entity.OrderStatus;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, String> {
 
-	List<Order> findByUserId(Long userId);
+	//Optional<Order> findByOrderId(String orderId);
 
-	List<Order> findByStatus(OrderStatus status);
+	//List<Order> findByUserId(Long userId);
 
-	List<Order> findByUserIdAndStatus(Long userId, OrderStatus status);
+	List<Order> findAllByStatus(OrderStatus orderStatus);
 
-	Optional<Order> findByOrderId(Long orderId);
+	//List<Order> findByStatus(OrderStatus status);
+
+	//List<Order> findByUserIdAndStatus(Long userId, OrderStatus status);
+
+	//Optional<Order> findByOrderId(Long orderId);
 }
