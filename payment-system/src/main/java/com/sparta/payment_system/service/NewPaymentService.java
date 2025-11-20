@@ -11,9 +11,12 @@ import com.sparta.payment_system.entity.Order;
 import com.sparta.payment_system.entity.OrderStatus;
 import com.sparta.payment_system.entity.Payment;
 import com.sparta.payment_system.entity.PaymentStatus;
+import com.sparta.payment_system.entity.PointTransaction;
 import com.sparta.payment_system.repository.OrderRepository;
 import com.sparta.payment_system.repository.PaymentRepository;
+import com.sparta.payment_system.repository.ProductRepository;
 import com.sparta.payment_system.repository.RefundRepository;
+import com.sparta.payment_system.repository.UserRepository;
 
 import reactor.core.publisher.Mono;
 
@@ -25,15 +28,25 @@ public class NewPaymentService {
 	private final RefundRepository refundRepository;
 	private final OrderRepository orderRepository;
 
+	// 후처리 과정에 필요한 요소
+	private final PointTransaction pointTransaction; // 레포지토리 만들어야 할까?
+	private final ProductRepository productRepository;
+	private final UserRepository userRepository;
+
 	@Autowired
 	public NewPaymentService(PortOneClient portOneClient, PaymentRepository paymentRepository,
-		RefundRepository refundRepository, OrderRepository orderRepository) {
+		RefundRepository refundRepository, OrderRepository orderRepository, PointTransaction pointTransaction,
+		ProductRepository productRepository, UserRepository userRepository) {
 		this.portOneClient = portOneClient;
 		this.paymentRepository = paymentRepository;
 		this.refundRepository = refundRepository;
 		this.orderRepository = orderRepository;
+		this.pointTransaction = pointTransaction;
+		this.productRepository = productRepository;
+		this.userRepository = userRepository;
 	}
 
+	// 결제건 검증
 	public Mono<Boolean> verifyPayment(String impUid, Long orderId, BigDecimal expectedAmount) {
 		return portOneClient.getAccessToken()
 			.flatMap(accessToken -> portOneClient.getPaymentDetails(impUid, accessToken))
@@ -60,10 +73,50 @@ public class NewPaymentService {
 				}
 
 				// 3. 검증 통과 → 우리 DB(Order/Payment) 상태 갱신
+				// paymenDetails를 콘솔에 찍으면 PortOne에서 담고있는 결제 상세내역을 볼 수 있음
 				updateOrderAndPayment(orderId, impUid, paidAmount, paymentDetails);
 
 				return true;
 			})
+			.onErrorReturn(false);
+	}
+
+	// 결제 취소
+	public Mono<Boolean> cancelPayment(String impUid, String reason) {
+		return portOneClient.getAccessToken()
+			.flatMap(accessToken ->
+				// 1) 결제 상세 조회
+				portOneClient.getPaymentDetails(impUid, accessToken)
+					.flatMap(paymentDetails -> {
+						System.out.println("취소 대상 결제 정보: " + paymentDetails);
+
+						// 2) 상태 확인
+						// PortOne에서의 상태값은 문자열로 되어있으므로 Enum으로 전환
+						String statusStr = (String)paymentDetails.get("status");
+						PaymentStatus status = mapPortOneStatus(statusStr);
+
+						if (status != PaymentStatus.PAID) {
+							System.out.println("이미 취소되었거나 실패한 결제입니다. status=" + statusStr);
+							//Mono<Boolean> 형식에 맞춰서 조건을 만족하지 않을 경우 false를 담은 Mono 형태로 보내줌
+							return Mono.just(false);
+						}
+
+						// 3) 취소 금액 추출 (전액 취소)
+						Map<String, Object> amountInfo = (Map<String, Object>)paymentDetails.get("amount");
+						BigDecimal cancelAmount = extractTotalAmount(amountInfo);
+
+						// 4) PortOne 결제 취소 API 호출
+						return portOneClient.cancelPayment(impUid, accessToken, reason)
+							.flatMap(cancelResult -> {
+								// 5) 우리 DB 상태 갱신 (JPA라 블로킹이라서 fromCallable로 감싸줌)
+								return Mono.fromCallable(() -> {
+										handleCancelInDatabase(impUid, cancelAmount, reason);
+										return true;
+									})
+									.onErrorReturn(false);
+							});
+					})
+			)
 			.onErrorReturn(false);
 	}
 
@@ -88,9 +141,12 @@ public class NewPaymentService {
 			return null;
 
 		Object total = amountInfo.get("total");
+		// total이 Number의 서브타입(Double, Integer, Long 이면 if문에 들어감)
 		if (total instanceof Number) {
 			return BigDecimal.valueOf(((Number)total).doubleValue());
 		}
+
+		// Number 타입이 아닌 것들의 경우 조건문 설정, 문자열도 Decimal로 전환해보고 안되면 null 보내본다.
 		if (total instanceof String s && !s.isBlank()) {
 			try {
 				return new BigDecimal(s);
@@ -98,6 +154,20 @@ public class NewPaymentService {
 			}
 		}
 		return null;
+	}
+
+	// 후처리 기능 구현 (재고 차감, 포인트 적립, 누적금액 확인 후 등급 업데이트) +. 사용자별 누적금액 처리하는 엔티티가 있나? ? ? ? ? ?
+	private void updateAfterPayment(Order order,
+		Payment payment,
+		BigDecimal paidAmount,
+		Map<String, Object> paymentDetails) {
+		//1. 재고 차감
+		// >> order로 수량을 찾는게 아니고 orderitem에서 찾아야 함 (11/20 개선 필요)
+
+		//2. 포인트 적립
+
+		//3. 누적금액 확인 후 등급 업데이트
+
 	}
 
 	// 결제 검증 통과 후 Order / Payment 갱신
@@ -132,8 +202,8 @@ public class NewPaymentService {
 
 			paymentRepository.save(payment);
 
-			// 3. 주문 상태 갱신
-			order.setStatus(OrderStatus.COMPLETED);
+			// 3. 주문 상태 갱신 (후처리 이후 갱신이 필요한 것 아닌가??)
+			order.updateOrderStatus(OrderStatus.COMPLETED);
 			orderRepository.save(order);
 
 			System.out.println("결제/주문 상태 갱신 완료 - orderId=" + orderId + ", impUid=" + impUid);
@@ -141,5 +211,34 @@ public class NewPaymentService {
 			System.err.println("결제/주문 상태 갱신 중 오류 발생: " + e.getMessage());
 			e.printStackTrace();
 		}
+	}
+
+	// 결제 취소 후 DB 수정 헬퍼 메서드
+	private void handleCancelInDatabase(String impUid, BigDecimal cancelAmount, String reason) {
+		// 1. impUid로 Payment 조회
+		Payment payment = paymentRepository.findByImpUid(impUid)
+			.orElseThrow(() -> new IllegalArgumentException("해당 impUid의 결제 정보를 찾을 수 없습니다. impUid=" + impUid));
+
+		// 2. 이미 취소/환불된 결제라면 추가 처리 없이 리턴
+		if (payment.getStatus() != PaymentStatus.PAID) {
+			System.out.println("이미 취소되었거나 취소 불가능한 상태의 결제입니다. status=" + payment.getStatus());
+			return;
+		}
+
+		// 3. 결제 상태를 REFUNDED 로 변경 (전액 취소 기준)
+		payment.updatePaymentStatus(PaymentStatus.REFUNDED);
+		paymentRepository.save(payment);
+
+		// TODO: Refund 엔티티/포인트/재고 롤백 등 추가 후처리 구현
+		// 3.5 역으로 진행이 필요한 후처리 필요 (재고 원복, 멤버십 재조정, 포인트 원복)
+
+		// 4. 연관 주문 상태를 CANCELLED 로 변경
+		Order order = payment.getOrder();
+		if (order != null) {
+			order.updateOrderStatus(OrderStatus.CANCELLED);
+			orderRepository.save(order);
+		}
+
+		System.out.println("결제 취소 후 DB 상태 갱신 완료 - impUid=" + impUid + ", cancelAmount=" + cancelAmount);
 	}
 }

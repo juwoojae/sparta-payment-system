@@ -31,18 +31,18 @@ public class PortOneClient {
 	}
 
 	// 결제 ID로 결제 정보 조회
-	public Mono<Map> getPaymentDetails(String paymentId, String accessToken) {
+	public Mono<Map> getPaymentDetails(String impUid, String accessToken) {
 		return webClient.get()
-			.uri("/payments/{paymentId}", paymentId)
+			.uri("/payments/{impUid}", impUid)
 			.header("Authorization", "Bearer " + accessToken)
 			.retrieve()
 			.bodyToMono(Map.class);
 	}
 
 	// 결제 취소
-	public Mono<Map> cancelPayment(String paymentId, String accessToken, String reason) {
+	public Mono<Map> cancelPayment(String impUid, String accessToken, String reason) {
 		return webClient.post()
-			.uri("/payments/{paymentId}/cancel", paymentId)
+			.uri("/payments/{impUid}/cancel", impUid)
 			.header("Authorization", "Bearer " + accessToken)
 			.bodyValue(Map.of("reason", reason))
 			.retrieve()

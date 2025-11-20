@@ -5,12 +5,12 @@ import java.math.BigDecimal;
 import lombok.Getter;
 
 @Getter
-public class PaymentCompleteRequest {
+public class VerifyPaymentRequest {
 	private final Long orderId;
 	private final String impUid;
 	private final BigDecimal amount;
 
-	public PaymentCompleteRequest(Long orderId, String impUid, BigDecimal amount) {
+	public VerifyPaymentRequest(Long orderId, String impUid, BigDecimal amount) {
 		this.orderId = orderId;
 		this.impUid = impUid;
 		this.amount = amount;

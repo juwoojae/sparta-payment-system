@@ -9,7 +9,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sparta.payment_system.dto.payment.PaymentCompleteRequest;
+import com.sparta.payment_system.dto.payment.CancelPaymentRequest;
+import com.sparta.payment_system.dto.payment.VerifyPaymentRequest;
 import com.sparta.payment_system.service.NewPaymentService;
 
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class NewPaymentController {
 	// 결제 완료 검증
 	@PostMapping("/complete")
 	public Mono<ResponseEntity<String>> completePayment(
-		@RequestBody PaymentCompleteRequest request
+		@RequestBody VerifyPaymentRequest request
 	) {
 		Long orderId = request.getOrderId();
 		String impUid = request.getImpUid();
@@ -33,15 +34,33 @@ public class NewPaymentController {
 		return newPaymentService.verifyPayment(impUid, orderId, amount)
 			.map(isSuccess -> {
 				if (isSuccess) {
-					return ResponseEntity
-						.status(HttpStatus.OK)
-						.body("결제 검증 및 완료 처리 성공");
+					return ResponseEntity.status(HttpStatus.OK).body("결제 검증 및 완료 처리 성공");
 				} else {
-					return ResponseEntity
-						.status(HttpStatus.BAD_REQUEST)
-						.body("결제 검증 실패");
+					return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("결제 검증 실패");
 				}
 			});
 	}
+
+	// 결제 취소
+	// 사용자가 직접 취소하는게 아니라 관리자가 사용자의 요청을 받고 취소해주는 단계
+	@PostMapping("/cancel")
+	public Mono<ResponseEntity<String>> cancelPayment(
+		@RequestBody CancelPaymentRequest cancelRequest
+	) {
+		String impUid = cancelRequest.getImpUId();
+		String reason = cancelRequest.getReason() != null ? cancelRequest.getReason() : "사용자에 의한 요청 취소";
+
+		return newPaymentService.cancelPayment(impUid, reason)
+			.map(isSuccess -> {
+				if (isSuccess) {
+					return ResponseEntity.status(HttpStatus.OK).body("결제 취소 성공");
+				} else {
+					return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("결제 취소 실패");
+				}
+			});
+	}
+
+	// PAID 상태 결제 목록 조회
+
 }
 
