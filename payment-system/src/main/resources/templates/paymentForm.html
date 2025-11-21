@@ -247,21 +247,17 @@
 
         // 결제 검증
         async function verifyPayment(paymentId) {
-            try {
-                // 결제 검증 엔드포인트 호출
-                const response = await fetch(`${API_BASE_URL}/api/payments/complete`, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        paymentId: paymentId
-                    })
-                });
-                const resultText = await response.text();
+            // 결제 검증 엔드포인트 호출
+            const response = await fetch(`${API_BASE_URL}/api/payments/complete`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    paymentId: paymentId
+                })
+            });
+            const resultText = await response.text();
 
-                if (!response.ok) {
-                    throw new Error("결제 검증 중 예상치 못한 오류 발생!");
-                }
-            }catch (error){
-                throw new Error("결제 검증 중 예상치 못한 오류 발생!")
+            if (!response.ok) {
+                throw new Error("결제 검증 중 예상치 못한 오류 발생!");
             }
         }
     });
