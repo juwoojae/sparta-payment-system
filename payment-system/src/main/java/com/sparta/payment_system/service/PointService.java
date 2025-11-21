@@ -104,13 +104,13 @@ public class PointService {
 			.sum();
 
 		if (netPoints > 0) {
-			PointTransaction rollbackTransaction = new PointTransaction(
+			PointTransaction rollbackPointTransaction = new PointTransaction(
 				user,
 				order,
 				-netPoints,
 				null
 			);
-			pointTransactionRepository.save(rollbackTransaction);
+			pointTransactionRepository.save(rollbackPointTransaction);
 		}
 	}
 }
