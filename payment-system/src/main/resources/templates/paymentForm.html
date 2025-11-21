@@ -16,7 +16,7 @@
     </div>
     <div class="input-group">
         <label for="totalAmount">주문 총금액</label>
-        <input type="number" id="totalAmount" placeholder="금액을 입력하세요">
+        <input type="number" id="totalAmount" readonly>
     </div>
 
     <div>
@@ -79,8 +79,6 @@
         }
 
         try {
-            // 🔹 fetch API URL 변경: /api/orders/{orderId}
-            console.log(orderId)
             const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}`);
             if (!res.ok) {
                 alert("orderId 를 불러올 수 없습니다.");
@@ -109,11 +107,29 @@
         try {
             const res = await fetch(`${API_BASE_URL}/api/orders`);
             if (!res.ok) {
-                alert("주문 리스트 를 불러올 수 없습니다.");
+                alert("주문 내역 리스트 를 불러올 수 없습니다.");
                 return;
             }
 
             alert("주문 리스트가 조회됨");
+
+        } catch (e) {
+            console.error(e);
+            alert("서버 요청 중 오류 발생");
+        }
+    });
+
+    //결제 조회 버튼 이밴트 처리 메서드
+    getPaymentsBtn.addEventListener('click', async function () {
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/payments/paid`);
+            if (!res.ok) {
+                alert("결제 내역 리스트 를 불러올 수 없습니다.");
+                return;
+            }
+
+            alert("결제 리스트가  조회됨");
 
         } catch (e) {
             console.error(e);
@@ -140,7 +156,7 @@
         }
     }
 
-    // 총 금액, 포인트 입력시 자동 계산 후 반영
+    // input 이벤트가 발생 했을때 어떤 함수를 실행할지
     totalAmountInput.addEventListener('input', calculateFinalAmount);
     pointsInput.addEventListener('input', calculateFinalAmount);
 
@@ -196,12 +212,59 @@
             }
         });
 
-        console.log(response);
-
         // 결제가 실패하는 경우
         if (response.code != null) {
             console.error("결제 실패", response);
+            console.log("결제 상태, failed")
             return;
+        }
+
+        //리다이렉트 후에도 결제 정보를 처리할 수 있도록 paymentId를 sessionStorage에 저장
+        //결제 검증 후에 만료 시켜야 한다.
+        if(response.paymentId){
+            sessionStorage.setItem('pendingPaymentId', response.paymentId);
+            sessionStorage.setItem('pendingOrderId', orderId);
+            console.log('결제 정보를 sessionStorage에 저장:', {
+                paymentId: paymentResponse.paymentId,
+                orderId: orderId
+            });
+        }
+
+        //결제 검증 로직
+        try{
+            await verifyPayment(response.paymentId); // 백엔드로 결제 검증 요청 메서드 호출
+            // 검증 성공 시 sessionStorage에서 제거
+            sessionStorage.removeItem('pendingPaymentId');
+            sessionStorage.removeItem('pendingOrderId');
+            console.log(`paymentId`, response.paymentId, '결제 검증이 성공했습니다.')
+            alert('결제 검증이 성공했습니다.')
+
+        } catch (error) {
+            console.warn('결제 검증 중 오류 (리다이렉트 후 재시도 가능):', error);
+            alert("결제 검증에 실패 했습니다. 다시 시도해 주세요")
+            // 오류가 발생해도 리다이렉트 후 재시도할 수 있도록 sessionStorage는 유지
+        }
+
+        // 결제 검증
+        async function verifyPayment(paymentId) {
+            try {
+                // 결제 검증 엔드포인트 호출
+                const response = await authenticatedFetch(`${API_BASE_URL}/api/payments/complete`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify({
+                        paymentId: paymentId
+                    })
+                });
+
+                const resultText = await response.text();
+
+                if (!response.ok) {
+                    throw new Error("결제 검증 중 예상치 못한 오류 발생!");
+                }
+            }catch (error){
+                throw new Error("결제 검증 중 예상치 못한 오류 발생!")
+            }
         }
     });
 
