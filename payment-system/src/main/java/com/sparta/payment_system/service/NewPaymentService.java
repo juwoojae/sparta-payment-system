@@ -46,6 +46,7 @@ public class NewPaymentService {
 	}
 
 	// 결제건 검증
+	@Transactional
 	public Mono<Boolean> verifyPayment(String impUid, Long orderId, BigDecimal expectedAmount) {
 		return portOneClient.getAccessToken()
 			.flatMap(accessToken -> portOneClient.getPaymentDetails(impUid, accessToken))
@@ -81,6 +82,7 @@ public class NewPaymentService {
 	}
 
 	// 결제 취소
+	@Transactional
 	public Mono<Boolean> cancelPayment(String impUid, String reason) {
 		return portOneClient.getAccessToken()
 			.flatMap(accessToken ->
@@ -156,51 +158,46 @@ public class NewPaymentService {
 	}
 
 	// 결제 검증 통과 후 Order / Payment 갱신
-	@Transactional
 	private void updateOrderAndPayment(Long orderId,
 		String impUid,
 		BigDecimal paidAmount,
 		Map<String, Object> paymentDetails) {
-		try {
-			// 1. 주문 조회
-			Order order = orderRepository.findById(orderId)
-				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다. orderId=" + orderId));
+		// 1. 주문 조회
+		Order order = orderRepository.findById(orderId)
+			.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다. orderId=" + orderId));
 
-			// 2. 해당 주문에 대한 Payment 있는지 조회 (1:1 구조라고 가정)
-			Payment payment = paymentRepository.findByOrder(order)
-				.orElseGet(() -> new Payment(
-					order,
-					paidAmount,
-					impUid,
-					PaymentStatus.PAID,
-					null // 일단 null, 아래 completePayment에서 채움
-				));
+		// 2. 해당 주문에 대한 Payment 있는지 조회 (1:1 구조라고 가정)
+		Payment payment = paymentRepository.findByOrder(order)
+			.orElseGet(() -> new Payment(
+				order,
+				paidAmount,
+				impUid,
+				PaymentStatus.PAID,
+				null // 일단 null, 아래 completePayment에서 채움
+			));
 
-			// 2-1. 결제 수단 추출 (환경 따라 key가 payMethod / method 등일 수 있음)
-			Object payMethodObj = paymentDetails.get("pay_method");
-			String method = null;
-			if (payMethodObj instanceof String m) {
-				method = m;
-			}
-
-			// 2-2. 결제 완료 처리 (Entity 메서드 사용 -> 외부 검증에 문제가 없었으므로 내부 상태를 PAID로 설정)
-			payment.completePayment(paidAmount, method);
-			paymentRepository.save(payment);
-
-			// 성공시 후처리 기능 호출
-			updateAfterPayment(order, payment, paidAmount, paymentDetails);
-
-			order.updateOrderStatus(OrderStatus.COMPLETED);
-			orderRepository.save(order);
-
-			System.out.println("결제/주문 상태 갱신 완료 - orderId=" + orderId + ", impUid=" + impUid);
-		} catch (Exception e) {
-			System.err.println("결제/주문 상태 갱신 중 오류 발생: " + e.getMessage());
-			e.printStackTrace();
+		// 2-1. 결제 수단 추출 (환경 따라 key가 payMethod / method 등일 수 있음)
+		Object payMethodObj = paymentDetails.get("pay_method");
+		String method = null;
+		if (payMethodObj instanceof String m) {
+			method = m;
 		}
+
+		// 2-2. 결제 완료 처리 (Entity 메서드 사용 -> 외부 검증에 문제가 없었으므로 내부 상태를 PAID로 설정)
+		payment.completePayment(paidAmount, method);
+		paymentRepository.save(payment);
+
+		// 성공시 후처리 기능 호출
+		updateAfterPayment(order, payment, paidAmount, paymentDetails);
+
+		order.updateOrderStatus(OrderStatus.COMPLETED);
+		orderRepository.save(order);
+
+		System.out.println("결제/주문 상태 갱신 완료 - orderId=" + orderId + ", impUid=" + impUid);
 	}
 
 	// 결제 성공 후 후처리 (재고 차감, 포인트 적립, 누적금액 확인 후 등급 업데이트)
+
 	private void updateAfterPayment(Order order,
 		Payment payment,
 		BigDecimal paidAmount,
