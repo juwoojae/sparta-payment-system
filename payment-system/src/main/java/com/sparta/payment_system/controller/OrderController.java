@@ -3,28 +3,18 @@ package com.sparta.payment_system.controller;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import ch.qos.logback.core.model.Model;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.sparta.payment_system.dto.order.CreateOrderRequest;
 import com.sparta.payment_system.dto.order.CreateOrderResponse;
 import com.sparta.payment_system.dto.order.GetOrderResponse;
-import com.sparta.payment_system.entity.Order;
-import com.sparta.payment_system.entity.OrderItem;
-import com.sparta.payment_system.entity.Product;
-import com.sparta.payment_system.repository.OrderItemRepository;
-import com.sparta.payment_system.repository.OrderRepository;
-import com.sparta.payment_system.repository.ProductRepository;
 import com.sparta.payment_system.service.OrderService;
 
 import lombok.RequiredArgsConstructor;
+
+import static org.springframework.http.HttpStatus.*;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -37,13 +27,18 @@ public class OrderController {
 	@PostMapping
 	public ResponseEntity<CreateOrderResponse> createOrder(@RequestBody CreateOrderRequest createOrderRequest) {
 
-		return ResponseEntity.status(HttpStatus.CREATED).body(orderService.createOrder(createOrderRequest));
+		return ResponseEntity.status(CREATED).body(orderService.createOrder(createOrderRequest));
 	}
 
 	@GetMapping
-	public ResponseEntity<List<GetOrderResponse>> getAllOrders() {
+	public ResponseEntity<List<GetOrderResponse>> getAllOrder() {
 
-		return ResponseEntity.status(HttpStatus.OK).body(orderService.getOrders());
+		return ResponseEntity.status(OK).body(orderService.getOrders());
 	}
 
+    @GetMapping("/{orderId}")
+    public ResponseEntity<GetOrderResponse> getOrder(@PathVariable("orderId") Long orderId , Model model) {
+
+        return ResponseEntity.status(OK).body(orderService.getOrder(orderId));
+    }
 }

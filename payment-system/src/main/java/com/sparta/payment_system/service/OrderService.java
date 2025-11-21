@@ -6,14 +6,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sparta.payment_system.dto.order.*;
 import org.springframework.stereotype.Service;
 
-import com.sparta.payment_system.dto.order.CreateOrderItemRequest;
-import com.sparta.payment_system.dto.order.CreateOrderItemResponse;
-import com.sparta.payment_system.dto.order.CreateOrderRequest;
-import com.sparta.payment_system.dto.order.CreateOrderResponse;
-import com.sparta.payment_system.dto.order.GetOrderItemResponse;
-import com.sparta.payment_system.dto.order.GetOrderResponse;
 import com.sparta.payment_system.entity.Order;
 import com.sparta.payment_system.entity.OrderItem;
 import com.sparta.payment_system.entity.Product;
@@ -24,8 +19,10 @@ import com.sparta.payment_system.repository.ProductRepository;
 import com.sparta.payment_system.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class OrderService {
 
@@ -44,7 +41,7 @@ public class OrderService {
 		BigDecimal totalAmount = BigDecimal.ZERO;
 
 		Order order = new Order(user, totalAmount, PENDING_PAYMENT);
-		orderRepository.save(order);
+        orderRepository.save(order);
 
 		List<CreateOrderItemResponse> orderItems = new ArrayList<>();
 
@@ -116,4 +113,34 @@ public class OrderService {
 		}
 		return orderResponses;
 	}
+
+    public GetOrderResponse getOrder(Long orderId) {
+
+        Order order = orderRepository.findByOrderId(orderId).orElseThrow(
+                () -> new IllegalArgumentException("존재하지 않는 orderId")
+        );
+        //만약 조회 되었을때 PENDING_PAYMENT 가 아니라면 이미 결제된 주문이거나, 취소된 주문이므로 예외를 던진다.
+        if(!order.getStatus().equals(PENDING_PAYMENT)) {
+            throw  new IllegalArgumentException("나중에 커스텀 해야할 예외");
+        }
+
+        List<GetOrderItemResponse> orderItemResponses = new ArrayList<>();
+
+        for (OrderItem orderItem : orderItemRepository.findAllByOrder(order)) {
+            orderItemResponses.add(GetOrderItemResponse.builder()
+                    .productId(orderItem.getProduct().getProductId())
+                    .quantity(orderItem.getQuantity())
+                    .price(orderItem.getPrice())
+                    .totalPrice(orderItem.getTotalPrice())
+                    .build());
+        }
+        return GetOrderResponse.builder()
+                .userId(order.getUser().getUserId())
+                .orderId(order.getOrderId())
+                .totalAmount(order.getTotalAmount())
+                .orderStatus(PENDING_PAYMENT)
+                .orderItems(orderItemResponses)
+                .createdAt(order.getCreatedAt())
+                .build();
+    }
 }

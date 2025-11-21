@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import com.sparta.payment_system.entity.Order;
 import com.sparta.payment_system.entity.Payment;
 import com.sparta.payment_system.entity.PaymentStatus;
-
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
