@@ -249,14 +249,12 @@
         async function verifyPayment(paymentId) {
             try {
                 // 결제 검증 엔드포인트 호출
-                const response = await authenticatedFetch(`${API_BASE_URL}/api/payments/complete`, {
+                const response = await fetch(`${API_BASE_URL}/api/payments/complete`, {
                     method: 'POST',
-                    headers: getAuthHeaders(),
                     body: JSON.stringify({
                         paymentId: paymentId
                     })
                 });
-
                 const resultText = await response.text();
 
                 if (!response.ok) {
