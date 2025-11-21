@@ -37,9 +37,17 @@ public class MemberShip extends BaseTimeEntity {
 	@Column(name = "expires_at")
 	private LocalDateTime expiresAt;
 
-	public MemberShip(User user, Grade point, LocalDateTime expiresAt) {
+	public MemberShip(User user, Grade grade, LocalDateTime expiresAt) {
 		this.user = user;
-		this.point = point;
+		this.grade = grade;
 		this.expiresAt = expiresAt;
+	}
+
+	public void updateGrade(Grade newGrade) {
+		this.grade = newGrade;
+	}
+
+	public void extendExpiresAt(LocalDateTime newExpiresAt) {
+		this.expiresAt = newExpiresAt;
 	}
 }
