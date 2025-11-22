@@ -62,23 +62,6 @@ loginBtn.addEventListener('click', async function () {
     }
 )
 
-registerBtn.addEventListener('click', async function () {
-
-    try {
-        window.location.href = `${API_BASE_URL}/api/auth/register`;
-        if (!response.ok) {
-            alert("회원가입 폼을 불러올수 없습니다.");
-            return;
-        }
-
-        alert("회원가입 폼을 불러옵니다.");
-
-    } catch (e) {
-        console.error(e);
-        alert("서버 요청 중 오류 발생");
-    }
-})
-
 //로그인 성공시 호출하는 메서드
 async function LoginSuccess()  {
 
