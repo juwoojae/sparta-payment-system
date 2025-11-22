@@ -1,0 +1,94 @@
+
+const API_BASE_URL = "http://localhost:8080";  //api 공통 시작부
+
+//dom Element 객체 반환
+const emailInput = document.getElementById('emailInput');
+const passwordInput = document.getElementById('passwordInput');
+const loginBtn = document.getElementById('loginBtn');
+const registerBtn = document.getElementById('registerBtn');
+
+// localStorage setter
+function setAuthToken(data) {
+
+    localStorage.setItem('accessToken', data.accessToken);
+    localStorage.setItem('refreshToken', data.refreshToken);
+    localStorage.setItem('userId', data.userId);
+}
+
+// localStorage 내용 비우기
+function removeAuthToken() {
+
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('userId');
+}
+
+// 로그인 처리
+loginBtn.addEventListener('click', async function () {
+
+    const email = emailInput.value;
+    const password = passwordInput.value;
+        //검증 로직 1.
+        if (!email || !password) {
+            alert("email 과 password 를 입력해주세요. ");
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                alert("로그인에 실패 했습니다.");
+                return
+            }
+
+            setAuthToken(data);
+            console.log(data.userId, data.email, data.name);
+            alert("로그인 성공");
+            await LoginSuccess()
+
+        } catch (error) {
+            console.error('로그인 오류:', error);
+            alert("로그인에 실패 했습니다.");
+        }
+    }
+)
+
+registerBtn.addEventListener('click', async function () {
+
+    try {
+        window.location.href = `${API_BASE_URL}/api/auth/register`;
+        if (!response.ok) {
+            alert("회원가입 폼을 불러올수 없습니다.");
+            return;
+        }
+
+        alert("회원가입 폼을 불러옵니다.");
+
+    } catch (e) {
+        console.error(e);
+        alert("서버 요청 중 오류 발생");
+    }
+})
+
+//로그인 성공시 호출하는 메서드
+async function LoginSuccess()  {
+
+    try {
+        window.location.href = `${API_BASE_URL}/api/payment`;
+        alert("결제 화면을 불러옵니다");
+
+    } catch (e) {
+        console.error(e);
+        alert("서버 요청 중 오류 발생");
+    }
+}
+//로그인 실패시 호출하는 메서드
