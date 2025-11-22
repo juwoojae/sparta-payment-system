@@ -2,23 +2,23 @@
 const API_BASE_URL = "http://localhost:8080";  //api 공통 시작부
 
 
-const email = document.getElementById('email');
-const password = document.getElementById('password');
-const userName = document.getElementById('name');
+const emailInput = document.getElementById('emailInput');
+const passwordInput = document.getElementById('passwordInput');
+const nameInput = document.getElementById('nameInput');
 const registerButton = document.getElementById('registerButton');
 // 회원가입 처리
 registerButton.addEventListener('click',async function () {
-    const email = email('email').value;
-    const password = password('password').value;
-    const userName = userName('name').value;
+    const email = emailInput.value;
+    const password = passwordInput.value;
+    const userName = nameInput.value;
 
     if (!email || !password || !userName) {
-        showResult('error', '모든 필드를 입력해주세요.');
+        alert("error', '모든 필드를 입력해주세요.")
         return;
     }
 
     if (password.length < 6) {
-        showResult('error', '비밀번호는 최소 6자 이상이어야 합니다.');
+        alert("비밀번호는 6 자 이상이어야 합니다")
         return;
     }
 
@@ -37,6 +37,8 @@ registerButton.addEventListener('click',async function () {
             console.log("회원가입에 실패했습니다")
         }
 
+        console.log(email, password, userName)
+        alert("회원가입에 성공 했습니다")
     } catch (error) {
         console.error('회원가입 오류:', error);
         showResult('error', `오류: ${error.message}`);
