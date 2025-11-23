@@ -1,3 +1,4 @@
+import { createAuthHeaders } from "../modules/token.js";
 
 const API_BASE_URL = "http://localhost:8080";  //api 공통 시작부
 
@@ -21,7 +22,10 @@ applyOrderBtn.addEventListener('click', async function () {
     }
 
     try {
-        const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}`);
+        const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}`, {
+            method: "GET",
+            headers: createAuthHeaders(),
+        });
         if (!res.ok) {
             alert("orderId 를 불러올 수 없습니다.");
             return;
@@ -47,7 +51,10 @@ applyOrderBtn.addEventListener('click', async function () {
 getOrdersBtn.addEventListener('click', async function () {
 
     try {
-        const res = await fetch(`${API_BASE_URL}/api/orders`);
+        const res = await fetch(`${API_BASE_URL}/api/orders`, {
+            method: "GET",
+            headers: createAuthHeaders(),
+        });
         if (!res.ok) {
             alert("주문 내역 리스트 를 불러올 수 없습니다.");
             return;
@@ -65,7 +72,10 @@ getOrdersBtn.addEventListener('click', async function () {
 getPaymentsBtn.addEventListener('click', async function () {
 
     try {
-        const res = await fetch(`${API_BASE_URL}/api/payments/paid`);
+        const res = await fetch(`${API_BASE_URL}/api/payments/paid`, {
+            method: "GET",
+            headers: createAuthHeaders(),
+        });
         if (!res.ok) {
             alert("결제 내역 리스트 를 불러올 수 없습니다.");
             return;
@@ -192,6 +202,7 @@ paymentBtn.addEventListener('click', async function (e) {
         // 결제 검증 엔드포인트 호출
         const response = await fetch(`${API_BASE_URL}/api/payments/complete`, {
             method: 'POST',
+            headers: createAuthHeaders(),
             body: JSON.stringify({
                 paymentId: paymentId
             })
