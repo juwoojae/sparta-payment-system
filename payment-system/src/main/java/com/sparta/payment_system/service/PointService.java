@@ -7,6 +7,8 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.sparta.payment_system.dto.point.GetPointsRequest;
+import com.sparta.payment_system.dto.point.GetPointsResponse;
 import com.sparta.payment_system.entity.Grade;
 import com.sparta.payment_system.entity.MemberShip;
 import com.sparta.payment_system.entity.Order;
@@ -112,5 +114,12 @@ public class PointService {
 			);
 			pointTransactionRepository.save(rollbackPointTransaction);
 		}
+	}
+
+	//모든 pointTransaction 에서 userId 인 것만 찾은후, totalPoints 계산하기
+	public GetPointsResponse getUserTotalPoints(GetPointsRequest getPointsRequest) {
+
+		int points = pointTransactionRepository.getTotalPointsByUserId(getPointsRequest.getUserId());
+		return new GetPointsResponse(points);
 	}
 }
