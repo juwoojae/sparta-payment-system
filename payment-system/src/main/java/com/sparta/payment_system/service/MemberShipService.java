@@ -33,7 +33,7 @@ public class MemberShipService {
 
 	public void updateMemberShipByOrder(Long orderId) {
 		// 1. 주문 조회
-		Order order = orderRepository.findById(orderId)
+		Order order = orderRepository.findByOrderId(orderId)
 			.orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
 		User user = order.getUser();
 

@@ -19,7 +19,7 @@ public class ProductService {
 
 	// 결제 성공 후 재고 차감
 	public void decreaseStockForOrder(Long orderId) {
-		Order order = orderRepository.findById(orderId)
+		Order order = orderRepository.findByOrderId(orderId)
 			.orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
 
 		for (OrderItem orderItem : orderItemRepository.findAllByOrder(order)) {
@@ -29,7 +29,7 @@ public class ProductService {
 
 	// 결제 취소(주문 취소) 후 재고 원복
 	public void rollbackStockForOrder(Long orderId) {
-		Order order = orderRepository.findById(orderId)
+		Order order = orderRepository.findByOrderId(orderId)
 			.orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
 
 		for (OrderItem orderItem : orderItemRepository.findAllByOrder(order)) {

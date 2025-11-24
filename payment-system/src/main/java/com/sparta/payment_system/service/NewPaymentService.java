@@ -163,7 +163,7 @@ public class NewPaymentService {
 		BigDecimal paidAmount,
 		Map<String, Object> paymentDetails) {
 		// 1. 주문 조회
-		Order order = orderRepository.findById(orderId)
+		Order order = orderRepository.findByOrderId(orderId)
 			.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다. orderId=" + orderId));
 
 		// 2. 해당 주문에 대한 Payment 있는지 조회 (1:1 구조라고 가정)
