@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CreateUserRequest {
     private String email;
-    private String passwordHash;
+    private String password;
     private String userName;
 }

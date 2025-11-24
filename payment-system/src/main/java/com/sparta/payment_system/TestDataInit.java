@@ -2,6 +2,7 @@ package com.sparta.payment_system;
 
 import java.math.BigDecimal;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.sparta.payment_system.entity.Product;
@@ -19,6 +20,7 @@ public class TestDataInit {
 
 	private final ProductRepository productRepository;
 	private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
 	@PostConstruct
 	public void init(){
@@ -26,6 +28,6 @@ public class TestDataInit {
 		productRepository.save(new Product("아이스티",new BigDecimal(2000),10,"커피를 못먹는"));
 		productRepository.save(new Product("아샷추",new BigDecimal(1800),5,"아메리카노에 샷 추가"));
 
-		userRepository.save(new User("test@naver.com","test", "주우재"));
+		userRepository.save(new User("test@naver.com",passwordEncoder.encode("123456"), "주우재"));
 	}
 }

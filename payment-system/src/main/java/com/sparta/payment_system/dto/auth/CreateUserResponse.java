@@ -10,14 +10,14 @@ import java.time.LocalDateTime;
 public class CreateUserResponse {
     private Long userId;
     private String email;
-    private String passwordHash;
+    private String password;
     private String userName;
     private LocalDateTime createdAt;
 
-    public CreateUserResponse(Long id, String email, String passwordHash, String name, LocalDateTime createdAt) {
+    public CreateUserResponse(Long id, String email, String password, String name, LocalDateTime createdAt) {
         this.userId = id;
         this.email = email;
-        this.passwordHash = passwordHash;
+        this.password = password;
         this.userName = name;
         this.createdAt = createdAt;
     }

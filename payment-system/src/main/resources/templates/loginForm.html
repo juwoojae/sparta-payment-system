@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - Sparta Point Shop</title>
+</head>
+<body>
+<div class="container">
+    <div class="logo">
+        <p>로그인하여 포인트 결제를 시작하세요</p>
+    </div>
+
+    <form id="loginForm" autocomplete="off">
+        <div class="form-group">
+            <label for="emailInput">이메일</label>
+            <input type="email"
+                   id="emailInput"
+                   placeholder="이메일을 입력하세요"
+                   autocomplete="off"
+                   autocorrect="off"
+                   autocapitalize="off"
+                   spellcheck="false"
+                   required>
+        </div>
+
+        <div class="form-group">
+            <label for="passwordInput">비밀번호</label>
+            <input type="password"
+                   id="passwordInput"
+                   placeholder="비밀번호를 입력하세요"
+                   autocomplete="new-password"
+                   required>
+        </div>
+
+        <button id="loginBtn" type="button">로그인</button>
+        <a href="/api/auth/register">
+            <button id="registerBtn" type="button">회원가입</button>
+        </a>
+
+    </form>
+
+    <div id="result" class="result"></div>
+</div>
+
+<script type="module" src="/js/forms/loginForm.js"></script>
+</body>
+</html>
