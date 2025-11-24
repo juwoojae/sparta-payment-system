@@ -72,6 +72,23 @@ public class AuthService {
     }
 
     @Transactional
+    public void userLogout(PostLogoutRequest postLogoutRequest) {
+        String refreshToken = postLogoutRequest.getRefreshToken();
+
+        if (!jwtUtils.validateToken(refreshToken).isEmpty()) {
+            return;
+        }
+
+        Long userId = jwtUtils.getUserIdFromRefreshToken(refreshToken);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // DB에서 refreshToken 제거
+        user.removeRefreshToken();
+    }
+
+    @Transactional
     public PostRefreshTokenResponse refreshToken(PostRefreshTokenRequest request) {
 
         String refreshToken = request.getRefreshToken();

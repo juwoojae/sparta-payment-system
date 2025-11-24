@@ -28,6 +28,12 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.userLogin(postLoginRequest));
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logoutUser(@RequestBody PostLogoutRequest postLogoutRequest) {
+        authService.userLogout(postLogoutRequest);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
     @PostMapping("/refresh")
     public ResponseEntity<PostRefreshTokenResponse> refresh(@RequestBody PostRefreshTokenRequest request) {
         PostRefreshTokenResponse response = authService.refreshToken(request);
