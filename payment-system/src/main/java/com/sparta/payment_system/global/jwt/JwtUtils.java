@@ -59,4 +59,15 @@ public class JwtUtils {
                 .parseClaimsJws(token)
                 .getBody();
     }
+
+    // RefreshToken에서 userId 가져오기
+    public Long getUserIdFromRefreshToken(String refreshToken) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(refreshToken)
+                .getBody();
+
+        return claims.get("userId", Long.class);
+    }
 }

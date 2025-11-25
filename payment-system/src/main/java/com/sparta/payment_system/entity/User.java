@@ -29,8 +29,19 @@ public class User extends BaseTimeEntity {
 	@Column(name = "name")
 	private String name;
 
+    @Column(name = "refresh_token", length = 1024)
+    private String refreshToken;
+
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public void removeRefreshToken() {
+        this.refreshToken = null;
     }
 
     public User(String email, String passwordHash, String name) {
