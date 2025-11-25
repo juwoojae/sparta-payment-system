@@ -49,9 +49,8 @@ applyOrderBtn.addEventListener('click', async function () {
         console.error(e);
         alert("서버 요청 중 오류 발생");
     }
-    //2. user_id 로 보유 포인트 가지고 오기
     try {
-        const pointResponse = await fetch(`${API_BASE_URL}/api/points`, {
+        const pointResponse = await fetch(`${API_BASE_URL}/api/users/${USER_ID}/points`, {
             method: "GET",
             headers: createAuthHeaders(),
         });
