@@ -27,9 +27,9 @@ public class TestDataInit {
 
 	@PostConstruct
 	public void init(){
-		productRepository.save(new Product("아메리카노",new BigDecimal(1500),8,"와이리 밍밍하노"));
-		productRepository.save(new Product("아이스티",new BigDecimal(2000),10,"커피를 못먹는"));
-		productRepository.save(new Product("아샷추",new BigDecimal(1800),5,"아메리카노에 샷 추가"));
+		productRepository.save(new Product("아메리카노",new BigDecimal(1500),100,"와이리 밍밍하노"));
+		productRepository.save(new Product("아이스티",new BigDecimal(2000),100,"커피를 못먹는"));
+		productRepository.save(new Product("아샷추",new BigDecimal(1800),50,"아메리카노에 샷 추가"));
 
 		User test = new User("test@naver.com",passwordEncoder.encode("123456"), "주우재");
 		userRepository.save(test);
