@@ -46,7 +46,6 @@ public class ProductService {
 
 			product.decreaseStock(quantity);
 
-			// 안전하게 저장 (dirty checking이 있더라도 명시적으로 save 해주면 디버깅이 쉬움)
 			productRepository.save(product);
 
 			System.out.println("[재고차감] productId=" + productId + " after=" + product.getStock());
@@ -54,16 +53,33 @@ public class ProductService {
 	}
 
 	// 결제 취소(주문 취소) 후 재고 원복
+	@Transactional
 	public void rollbackStockForOrder(Long orderId) {
+
+		// 1) 주문 다시 조회
 		Order order = orderRepository.findByOrderId(orderId)
 			.orElseThrow(() -> new IllegalArgumentException("주문을 찾을 수 없습니다."));
 
-		List<OrderItem> items = orderItemRepository.findAllByOrder(order);
+		// 2) 주문에 속한 모든 OrderItem 조회
+		List<OrderItem> items = orderItemRepository.findByOrder_OrderId(orderId);
 
+		// 3) 각 OrderItem 기준으로 Product 찾아서 재고 원복
 		for (OrderItem orderItem : items) {
-			Product product = orderItem.getProduct();
+			Long productId = orderItem.getProduct().getProductId();
+
+			Product product = productRepository.findById(productId)
+				.orElseThrow(() -> new IllegalArgumentException("상품을 찾을 수 없습니다. id=" + productId));
+
 			int quantity = orderItem.getQuantity();
+
+			System.out.println(
+				"[재고원복] productId=" + productId + " before=" + product.getStock() + " plus=" + quantity);
+
 			product.rollbackStock(quantity);
+
+			productRepository.save(product);
+
+			System.out.println("[재고원복] productId=" + productId + " after=" + product.getStock());
 		}
 	}
 }

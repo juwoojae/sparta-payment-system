@@ -35,8 +35,10 @@ public class NewPaymentController {
 		return newPaymentService.verifyPayment(impUid, orderId, amount)
 			.doOnNext(result -> log.info("verifyPayment 결과: {}", result))
 			.map(result -> {
-				if (result) return ResponseEntity.ok("Payment Verified");
-				else return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment Verification Failed");
+				if (result)
+					return ResponseEntity.ok("Payment Verified");
+				else
+					return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Payment Verification Failed");
 			})
 			.onErrorResume(e -> {
 				log.error("결제 검증 중 예외 발생", e);
@@ -44,26 +46,24 @@ public class NewPaymentController {
 			});
 	}
 
-	// // 결제 취소
-	// // 사용자가 직접 취소하는게 아니라 관리자가 사용자의 요청을 받고 취소해주는 단계
-	// @PostMapping("/cancel")
-	// public Mono<ResponseEntity<String>> cancelPayment(
-	// 	@RequestBody CancelPaymentRequest cancelRequest
-	// ) {
-	// 	String impUid = cancelRequest.getImpUId();
-	// 	String reason = cancelRequest.getReason() != null ? cancelRequest.getReason() : "사용자에 의한 요청 취소";
-	//
-	// 	return newPaymentService.cancelPayment(impUid, reason)
-	// 		.map(isSuccess -> {
-	// 			if (isSuccess) {
-	// 				return ResponseEntity.status(HttpStatus.OK).body("결제 취소 성공");
-	// 			} else {
-	// 				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("결제 취소 실패");
-	// 			}
-	// 		});
-	// }
+	// 결제 취소
+	@PostMapping("/cancel")
+	public Mono<ResponseEntity<String>> cancelPayment(@RequestBody CancelPaymentRequest cancelRequest) {
+		String impUid = cancelRequest.getImpUid();
+		String reason = cancelRequest.getReason() != null
+			? cancelRequest.getReason()
+			: "사용자에 의한 요청 취소";
 
-	// PAID 상태 결제 목록 조회
+		log.info("취소 요청: impUid={}, reason={}", impUid, reason);
 
+		return newPaymentService.cancelPayment(impUid, reason)
+			.map(result -> {
+				if (result) {
+					return ResponseEntity.ok("결제 취소 성공");
+				} else {
+					return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("결제 취소 실패");
+				}
+			});
+	}
 }
 

@@ -26,7 +26,7 @@ public class Refund extends BaseTimeEntity {
 	private Long refundId;
 
 	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "payment_id", insertable = false, updatable = false)
+	@JoinColumn(name = "payment_id")
 	private Payment payment;
 
 	@Column(name = "amount", nullable = false, precision = 10, scale = 2)

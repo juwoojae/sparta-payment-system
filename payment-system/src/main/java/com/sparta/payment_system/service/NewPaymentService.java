@@ -11,6 +11,7 @@ import com.sparta.payment_system.entity.Order;
 import com.sparta.payment_system.entity.OrderStatus;
 import com.sparta.payment_system.entity.Payment;
 import com.sparta.payment_system.entity.PaymentStatus;
+import com.sparta.payment_system.entity.Refund;
 import com.sparta.payment_system.repository.OrderRepository;
 import com.sparta.payment_system.repository.PaymentRepository;
 import com.sparta.payment_system.repository.RefundRepository;
@@ -83,27 +84,47 @@ public class NewPaymentService {
 	/**
 	 * 결제 취소
 	 */
-	// public Mono<Boolean> cancelPayment(String impUid, String reason) {
-	// 	return portOneClient.getAccessToken()
-	// 		.flatMap(token -> portOneClient.getPaymentDetails(impUid, token))
-	// 		.flatMap(paymentDetails -> {
-	// 			String statusStr = (String)paymentDetails.get("status");
-	// 			PaymentStatus status = mapPortOneStatus(statusStr);
-	//
-	// 			if (status != PaymentStatus.PAID)
-	// 				return Mono.just(false);
-	//
-	// 			Map<String, Object> amountMap = (Map<String, Object>)paymentDetails.get("amount");
-	// 			BigDecimal cancelAmount = extractTotalAmount(amountMap);
-	//
-	// 			return portOneClient.cancelPayment(impUid, token, reason)
-	// 				.flatMap(result -> Mono.fromCallable(() -> {
-	// 					handleCancelInDatabase(impUid, cancelAmount, reason);
-	// 					return true;
-	// 				}).subscribeOn(Schedulers.boundedElastic()));
-	// 		})
-	// 		.onErrorReturn(false);
-	// }
+	@Transactional
+	public Mono<Boolean> cancelPayment(String impUid, String reason) {
+		return portOneClient.getAccessToken()
+			.flatMap(token ->
+				portOneClient.getPaymentDetails(impUid, token)
+					.flatMap(paymentDetails -> {
+						System.out.println("[CANCEL] paymentDetails = " + paymentDetails);
+
+						String statusStr = (String)paymentDetails.get("status");
+						PaymentStatus status = mapPortOneStatus(statusStr);
+						System.out.println("[CANCEL] PG status = " + status);
+
+						// 1) 아직 PAID 상태인 건만 취소 가능
+						if (status != PaymentStatus.PAID) {
+							System.out.println("[CANCEL] 이미 취소된 결제거나 취소 불가 상태입니다.");
+							return Mono.just(false);
+						}
+
+						Map<String, Object> amountMap = (Map<String, Object>)paymentDetails.get("amount");
+						BigDecimal cancelAmount = extractTotalAmount(amountMap);
+						System.out.println("[CANCEL] cancelAmount = " + cancelAmount);
+
+						// 2) PortOne 취소 API 호출
+						return portOneClient.cancelPayment(impUid, token, reason)
+							.flatMap(result -> {
+								System.out.println("[CANCEL] PG 취소 응답 = " + result);
+
+								// 3) 우리 DB 롤백 (블로킹 → boundedElastic)
+								return Mono.fromCallable(() -> {
+									handleCancelInDatabase(impUid, cancelAmount, reason);
+									System.out.println("[CANCEL] 로컬 DB 롤백 완료");
+									return true;
+								}).subscribeOn(Schedulers.boundedElastic());
+							});
+					})
+			)
+			.onErrorResume(e -> {
+				e.printStackTrace();
+				return Mono.just(false);
+			});
+	}
 
 	// ================== 헬퍼 메서드 ==================
 	public PaymentStatus mapPortOneStatus(String rawStatus) {
@@ -183,28 +204,36 @@ public class NewPaymentService {
 		if (payment.getStatus() != PaymentStatus.PAID)
 			return;
 
+		// 1. 결제 상태 REFUNDED로 변경
 		payment.updatePaymentStatus(PaymentStatus.REFUNDED);
 		paymentRepository.save(payment);
 
-		rollbackAfterCancel(payment, cancelAmount);
-
 		Order order = payment.getOrder();
-		if (order != null) {
-			order.updateOrderStatus(OrderStatus.CANCELLED);
-			orderRepository.save(order);
+		Long orderId = (order != null ? order.getOrderId() : null);
+
+		if (orderId != null) {
+
+			// 3) 재고/포인트/멤버십 롤백
+			rollbackAfterCancel(orderId, cancelAmount);
+
+			// 4) 주문은 Repository로 다시 조회해서 상태 변경
+			Order managedOrder = orderRepository.findByOrderId(orderId)
+				.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다. orderId=" + orderId));
+
+			managedOrder.updateOrderStatus(OrderStatus.CANCELLED);
+			orderRepository.save(managedOrder);
+
+			// 환불 이력 기록
+			Refund refund = new Refund(payment, cancelAmount, reason);
+			refundRepository.save(refund);
 		}
 
 		System.out.println("결제 취소 후 DB 상태 갱신 완료 - impUid=" + impUid);
 	}
 
-	public void rollbackAfterCancel(Payment payment, BigDecimal cancelAmount) {
-		Order order = payment.getOrder();
-		if (order == null || order.getOrderId() == null)
-			return;
-		Long orderId = order.getOrderId();
-
+	public void rollbackAfterCancel(Long orderId, BigDecimal cancelAmount) {
 		productService.rollbackStockForOrder(orderId);
-		pointService.rollbackPointsAfterCancel(order);
+		pointService.rollbackPointsAfterCancel(orderId);
 		memberShipService.updateMemberShipByOrder(orderId);
 	}
 }

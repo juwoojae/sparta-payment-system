@@ -6,6 +6,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class CancelPaymentResponse {
-	private String impUId;
+	private String impUid;
 	private String reason;
 }
