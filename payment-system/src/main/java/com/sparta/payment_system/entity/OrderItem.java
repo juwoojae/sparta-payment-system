@@ -51,12 +51,4 @@ public class OrderItem {
 		this.price = price;
 		this.totalPrice = totalPrice;
 	}
-
-	public void decreaseProductStock() {
-		product.decreaseStock(quantity);
-	}
-
-	public void rollbackProductStock() {
-		product.rollbackStock(quantity);
-	}
 }

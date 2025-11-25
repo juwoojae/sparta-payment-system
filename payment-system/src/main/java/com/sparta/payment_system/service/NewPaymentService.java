@@ -49,27 +49,30 @@ public class NewPaymentService {
 	 * 실제 결제 검증 + DB 업데이트 처리 (블로킹)
 	 */
 	@Transactional
-	protected Boolean processPayment(Long orderId, String impUid, BigDecimal expectedAmount, Map<String, Object> paymentDetails) {
+	public Boolean processPayment(Long orderId, String impUid, BigDecimal expectedAmount,
+		Map<String, Object> paymentDetails) {
 
 		System.out.println("paymentDetails = " + paymentDetails);
 		// 1. 상태 검증
-		String statusStr = (String) paymentDetails.get("status");
+		String statusStr = (String)paymentDetails.get("status");
 		System.out.println("statusStr = " + statusStr);
 
 		PaymentStatus status = mapPortOneStatus(statusStr);
 
 		System.out.println("status = " + status);
-		if (status != PaymentStatus.PAID) return false;
+		if (status != PaymentStatus.PAID)
+			return false;
 
 		// 2. 금액 검증
-		Map<String, Object> amountMap = (Map<String, Object>) paymentDetails.get("amount");
+		Map<String, Object> amountMap = (Map<String, Object>)paymentDetails.get("amount");
 
 		System.out.println("amountMap = " + amountMap);
 
 		BigDecimal paidAmount = extractTotalAmount(amountMap);
 		System.out.println("paidAmount = " + paidAmount);
 		System.out.println("expectedAmount = " + expectedAmount);
-		if (paidAmount == null || paidAmount.compareTo(expectedAmount) != 0) return false;
+		if (paidAmount == null || paidAmount.compareTo(expectedAmount) != 0)
+			return false;
 
 		// 3. DB 업데이트
 		updateOrderAndPayment(orderId, impUid, paidAmount, paymentDetails);
@@ -84,12 +87,13 @@ public class NewPaymentService {
 	// 	return portOneClient.getAccessToken()
 	// 		.flatMap(token -> portOneClient.getPaymentDetails(impUid, token))
 	// 		.flatMap(paymentDetails -> {
-	// 			String statusStr = (String) paymentDetails.get("status");
+	// 			String statusStr = (String)paymentDetails.get("status");
 	// 			PaymentStatus status = mapPortOneStatus(statusStr);
 	//
-	// 			if (status != PaymentStatus.PAID) return Mono.just(false);
+	// 			if (status != PaymentStatus.PAID)
+	// 				return Mono.just(false);
 	//
-	// 			Map<String, Object> amountMap = (Map<String, Object>) paymentDetails.get("amount");
+	// 			Map<String, Object> amountMap = (Map<String, Object>)paymentDetails.get("amount");
 	// 			BigDecimal cancelAmount = extractTotalAmount(amountMap);
 	//
 	// 			return portOneClient.cancelPayment(impUid, token, reason)
@@ -102,9 +106,9 @@ public class NewPaymentService {
 	// }
 
 	// ================== 헬퍼 메서드 ==================
-
-	private PaymentStatus mapPortOneStatus(String rawStatus) {
-		if (rawStatus == null) return PaymentStatus.FAILED;
+	public PaymentStatus mapPortOneStatus(String rawStatus) {
+		if (rawStatus == null)
+			return PaymentStatus.FAILED;
 		return switch (rawStatus.toUpperCase()) {
 			case "PAID" -> PaymentStatus.PAID;
 			case "CANCELLED", "CANCELED" -> PaymentStatus.REFUNDED;
@@ -113,18 +117,24 @@ public class NewPaymentService {
 		};
 	}
 
-	private BigDecimal extractTotalAmount(Map<?, ?> amountInfo) {
-		if (amountInfo == null) return null;
+	public BigDecimal extractTotalAmount(Map<?, ?> amountInfo) {
+		if (amountInfo == null)
+			return null;
 		Object total = amountInfo.get("total");
-		if (total instanceof Number) return BigDecimal.valueOf(((Number) total).doubleValue());
+		if (total instanceof Number)
+			return BigDecimal.valueOf(((Number)total).doubleValue());
 		if (total instanceof String s && !s.isBlank()) {
-			try { return new BigDecimal(s); } catch (NumberFormatException ignored) {}
+			try {
+				return new BigDecimal(s);
+			} catch (NumberFormatException ignored) {
+			}
 		}
 		return null;
 	}
 
 	@Transactional
-	protected void updateOrderAndPayment(Long orderId, String impUid, BigDecimal paidAmount, Map<String, Object> paymentDetails) {
+	public void updateOrderAndPayment(Long orderId, String impUid, BigDecimal paidAmount,
+		Map<String, Object> paymentDetails) {
 		Order order = orderRepository.findByOrderId(orderId)
 			.orElseThrow(() -> new IllegalArgumentException("존재하지 않는 주문입니다. orderId=" + orderId));
 
@@ -134,10 +144,10 @@ public class NewPaymentService {
 		// Object payMethodObj = paymentDetails.get("payMethod");
 		// String method = payMethodObj instanceof String m ? m : null;
 
-		Map<String, Object> methodMap = (Map<String, Object>) paymentDetails.get("method");
+		Map<String, Object> methodMap = (Map<String, Object>)paymentDetails.get("method");
 		String method = null;
 		if (methodMap != null) {
-			String provider = (String) methodMap.get("provider");
+			String provider = (String)methodMap.get("provider");
 			method = provider;
 		}
 
@@ -154,21 +164,24 @@ public class NewPaymentService {
 		System.out.println("결제/주문 상태 갱신 완료 - orderId=" + orderId + ", impUid=" + impUid);
 	}
 
-	private void updateAfterPayment(Order order, Payment payment, BigDecimal paidAmount, Map<String, Object> paymentDetails) {
-		if (order == null || order.getOrderId() == null) return;
+	public void updateAfterPayment(Order order, Payment payment, BigDecimal paidAmount,
+		Map<String, Object> paymentDetails) {
+		if (order == null || order.getOrderId() == null)
+			return;
 		Long orderId = order.getOrderId();
 
 		productService.decreaseStockForOrder(orderId);
-		pointService.earnPointsAfterPayment(order, paidAmount);
 		memberShipService.updateMemberShipByOrder(orderId);
+		pointService.earnPointsAfterPayment(order, paidAmount);
 	}
 
 	@Transactional
-	protected void handleCancelInDatabase(String impUid, BigDecimal cancelAmount, String reason) {
+	public void handleCancelInDatabase(String impUid, BigDecimal cancelAmount, String reason) {
 		Payment payment = paymentRepository.findByImpUid(impUid)
 			.orElseThrow(() -> new IllegalArgumentException("해당 impUid 결제 정보를 찾을 수 없습니다. impUid=" + impUid));
 
-		if (payment.getStatus() != PaymentStatus.PAID) return;
+		if (payment.getStatus() != PaymentStatus.PAID)
+			return;
 
 		payment.updatePaymentStatus(PaymentStatus.REFUNDED);
 		paymentRepository.save(payment);
@@ -184,9 +197,10 @@ public class NewPaymentService {
 		System.out.println("결제 취소 후 DB 상태 갱신 완료 - impUid=" + impUid);
 	}
 
-	private void rollbackAfterCancel(Payment payment, BigDecimal cancelAmount) {
+	public void rollbackAfterCancel(Payment payment, BigDecimal cancelAmount) {
 		Order order = payment.getOrder();
-		if (order == null || order.getOrderId() == null) return;
+		if (order == null || order.getOrderId() == null)
+			return;
 		Long orderId = order.getOrderId();
 
 		productService.rollbackStockForOrder(orderId);
