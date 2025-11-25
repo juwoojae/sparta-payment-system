@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.payment_system.entity.Grade;
 import com.sparta.payment_system.entity.MemberShip;
@@ -31,6 +32,7 @@ public class MemberShipService {
 		this.paymentRepository = paymentRepository;
 	}
 
+	@Transactional
 	public void updateMemberShipByOrder(Long orderId) {
 		// 1. 주문 조회
 		Order order = orderRepository.findByOrderId(orderId)
@@ -51,15 +53,14 @@ public class MemberShipService {
 			.reduce(BigDecimal.ZERO, BigDecimal::add);
 
 		// 4. 멤버십 조회 or 생성
-		MemberShip memberShip = memberShipRepository.findByUser(user);
-		if (memberShip == null) {
-			memberShip = memberShipRepository.save(
-				new MemberShip(user, Grade.NORMAL, null) // 만료기한 논의 필요
-			);
-		}
+		MemberShip memberShip = memberShipRepository.findByUser(user)
+			.orElseGet(() -> memberShipRepository.save(
+				new MemberShip(user, Grade.NORMAL, null) // 첫 생성
+			));
 
 		// 6. 누적금액 기준으로 등급 재계산 (결제 완료/취소 시마다 계산을 다시하기 때문에 등급의 변화가 알아서 적용되는 개념)
 		Grade newGrade = Grade.decideGrade(totalPaidAmount);
+		memberShip.updateTotalAmount(totalPaidAmount);
 		memberShip.updateGrade(newGrade);
 		memberShip.extendExpiresAt(now.plusDays(90));
 	}

@@ -47,10 +47,8 @@ public class PointService {
 		}
 
 		// 등급별 결제 금액의 일정 비율을 적립
-		MemberShip memberShip = memberShipRepository.findByUser(user);
-		if (memberShip == null) {
-			return;
-		}
+		MemberShip memberShip = memberShipRepository.findByUser(user)
+			.orElseGet(() -> memberShipRepository.save(new MemberShip(user, Grade.NORMAL, null)));
 
 		Grade grade = memberShip.getGrade();
 		// 1, 5, 10 비율을 소수로 바꾸는 과정
@@ -106,11 +104,13 @@ public class PointService {
 			.sum();
 
 		if (netPoints > 0) {
+			LocalDateTime expiresAt = LocalDateTime.now().plusDays(30);
+			
 			PointTransaction rollbackPointTransaction = new PointTransaction(
 				user,
 				order,
 				-netPoints,
-				null
+				expiresAt
 			);
 			pointTransactionRepository.save(rollbackPointTransaction);
 		}
