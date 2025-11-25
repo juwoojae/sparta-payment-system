@@ -1,4 +1,4 @@
-import { createAuthHeaders } from "../modules/token.js";
+import {createAuthHeaders} from "../modules/token.js";
 
 const API_BASE_URL = "http://localhost:8080";  //api 공통 시작부
 
@@ -61,7 +61,7 @@ applyOrderBtn.addEventListener('click', async function () {
         //  최종 결제 금액 계산
         calculateFinalAmount();
 
-        alert("주문 정보와 포인트가 적욛 되었습니다.");
+        alert("주문 정보와 포인트가 적용 되었습니다.");
 
     } catch (e) {
         console.error(e);
@@ -197,7 +197,7 @@ paymentBtn.addEventListener('click', async function (e) {
 
     //리다이렉트 후에도 결제 정보를 처리할 수 있도록 paymentId를 sessionStorage에 저장
     //결제 검증 후에 만료 시켜야 한다.
-    if(response.paymentId){
+    if (response.paymentId) {
         sessionStorage.setItem('pendingPaymentId', response.paymentId);
         sessionStorage.setItem('pendingOrderId', orderId);
         console.log('결제 정보를 sessionStorage에 저장:', {
@@ -207,7 +207,7 @@ paymentBtn.addEventListener('click', async function (e) {
     }
     console.log("결제 검증 로직 호출")
     //결제 검증 로직
-    try{
+    try {
         await verifyPayment(orderId, response.paymentId, final); // 백엔드로 결제 검증 요청 메서드 호출
         // 검증 성공 시 sessionStorage에서 제거
         sessionStorage.removeItem('pendingPaymentId');
