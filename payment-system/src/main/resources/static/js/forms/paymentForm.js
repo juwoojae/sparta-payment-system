@@ -1,4 +1,4 @@
-import {createAuthHeaders} from "../modules/token.js";
+import {createAuthHeaders, getRefreshToken, removeAuthToken, setAuthToken} from "../modules/token.js";
 
 const API_BASE_URL = "http://localhost:8080";  //api 공통 시작부
 
@@ -12,6 +12,7 @@ const getOrdersBtn = document.getElementById('getOrdersBtn');
 const getPaymentsBtn = document.getElementById('getPaymentsBtn');
 const paymentBtn = document.getElementById('paymentBtn');
 const applyOrderBtn = document.getElementById('applyOrderBtn');
+const logoutBtn = document.getElementById('logoutBtn');
 
 // 주문 적용 버튼 이벤트 처리 메서드
 applyOrderBtn.addEventListener('click', async function () {
@@ -250,5 +251,30 @@ paymentBtn.addEventListener('click', async function (e) {
     }
 });
 
+//로그아웃 이벤트 처리 메서드
+logoutBtn.addEventListener('click', async function () {
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
+            method:  'POST',
+            headers: createAuthHeaders(),
+            body: JSON.stringify({
+                refreshToken: getRefreshToken()
+            })
+        });
+        if (!response.ok) {
+            alert("로그아웃 요청 실패");
+            return;
+        }
+
+        alert("로그아웃이 성공적으로 처리되었습니다");
+        window.location.href = `${API_BASE_URL}/api/auth/login`;  //로그인 화면으로 리다이렉트
+        removeAuthToken();
+
+    } catch (e) {
+        console.error(e);
+        alert("서버 요청 중 오류 발생");
+    }
+});
 // 페이지 로드 시 초기 계산
 calculateFinalAmount();
