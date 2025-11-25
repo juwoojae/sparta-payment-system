@@ -1,6 +1,7 @@
 package com.sparta.payment_system.service;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sparta.payment_system.client.PortOneClient;
+import com.sparta.payment_system.dto.payment.GetPaidPaymentListResponse;
 import com.sparta.payment_system.entity.Order;
 import com.sparta.payment_system.entity.OrderStatus;
 import com.sparta.payment_system.entity.Payment;
@@ -119,6 +121,23 @@ public class NewPaymentService {
 					})
 			)
 			.onErrorReturn(false);
+	}
+
+	public List<GetPaidPaymentListResponse> getPaidPaymentList() {
+		List<Payment> payments = paymentRepository.findByStatus(PaymentStatus.PAID);
+
+		return payments.stream()
+			.map(p -> new GetPaidPaymentListResponse(
+				p.getPaymentId(),
+				p.getOrder().getOrderId(),
+				p.getImpUid(),
+				p.getAmount(),
+				p.getPaymentMethod(),
+				p.getStatus(),
+				p.getPaidAt(),
+				p.getStatus() == PaymentStatus.PAID
+			))
+			.toList();
 	}
 
 	// ========== 헬퍼 메서드 ===========

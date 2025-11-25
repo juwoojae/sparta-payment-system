@@ -1,15 +1,18 @@
 package com.sparta.payment_system.controller;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparta.payment_system.dto.payment.CancelPaymentRequest;
+import com.sparta.payment_system.dto.payment.GetPaidPaymentListResponse;
 import com.sparta.payment_system.dto.payment.VerifyPaymentRequest;
 import com.sparta.payment_system.service.NewPaymentService;
 
@@ -60,7 +63,12 @@ public class NewPaymentController {
 			});
 	}
 
-	// PAID 상태 결제 목록 조회
+	// 결제 내역 조회
+	@GetMapping("/paid")
+	public ResponseEntity<List<GetPaidPaymentListResponse>> getPaidPaymentList() {
+		List<GetPaidPaymentListResponse> paidList = newPaymentService.getPaidPaymentList();
+		return ResponseEntity.status(HttpStatus.OK).body(paidList);
+	}
 
 }
 

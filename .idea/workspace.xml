@@ -5,44 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="24683dae-db71-4ade-b083-9c86591006d7" name="Changes" comment="merge develop into feature/payments 및 충돌 해결">
-      <change afterPath="$PROJECT_DIR$/.idea/checkstyle-idea.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/material_theme_project_new.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules/payment-system.main.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2025__11__17___1_49__Changes_.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_2025__11__17__오후_1_49_[Changes]/shelved.patch" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/sparta-cloud-backend-challenges-main.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/naver-checkstyle-rules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/naver-intellij-formatter.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/controller/AuthController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/controller/PaymentViewController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/dto/auth/CreateUserRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/dto/auth/CreateUserResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/dto/auth/PostLoginRequest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/dto/auth/PostLoginResponse.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/dto/payment/PaymentRequestDto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/global/jwt/JwtAuthenticationFilter.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/global/jwt/JwtUtils.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/global/jwt/UserInfo.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/global/security/SecurityConfig.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/service/AuthService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/payment-system/src/main/resources/templates/paymentForm.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-system/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/payment-system/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/controller/OrderController.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/controller/OrderController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/controller/PaymentController.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/controller/PaymentController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/entity/MemberShip.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/entity/MemberShip.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/entity/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/entity/User.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/repository/OrderRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/repository/OrderRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/repository/UserRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/service/OrderService.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/service/OrderService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/service/PaymentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/payment-system/src/main/java/com/sparta/payment_system/service/PaymentService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/payment-system/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/payment-system/src/main/resources/application.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/sparta-payment-system.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <list id="432dc2e7-80b0-4a3f-b6d3-cecb03688f37" name="Changes by Asus" comment="Changes by Asus" />
     <option name="SHOW_DIALOG" value="false" />
@@ -67,21 +33,6 @@
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="payment-system" type="f1a62948:ProjectNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="payment-system" type="f1a62948:ProjectNode" />
-                <item name="Tasks" type="e4a08cd1:TasksNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="payment-system" type="f1a62948:ProjectNode" />
-                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="payment-system" type="f1a62948:ProjectNode" />
-                <item name="Run Configurations" type="7b0102dc:RunConfigurationsNode" />
               </path>
             </expand>
             <select />
@@ -139,12 +90,15 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Gradle.Build payment-system.executor": "Run",
     "Gradle.Download Sources.executor": "Run",
     "Gradle.payment-system [dependencies].executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Spring Boot.PaymentSystemApplication.executor": "Run",
     "git-widget-placeholder": "feature/payments",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/sjww03/Documents/GitHub/sparta-cloud-backend-challenges-main",
@@ -169,7 +123,7 @@
       <recent name="$PROJECT_DIR$/payment-system/src/main/resources/static" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.payment-system [dependencies]">
+  <component name="RunManager" selected="Spring Boot.PaymentSystemApplication">
     <configuration name="payment-system [dependencies]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -500,7 +454,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="feature/payments" />
+                        <option value="Develop" />
                       </list>
                     </value>
                   </entry>
