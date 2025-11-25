@@ -7,6 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.sparta.payment_system.dto.order.*;
+import com.sparta.payment_system.exception.InvalidProductQuantityException;
+import com.sparta.payment_system.exception.NotFoundException;
+import com.sparta.payment_system.exception.UnauthorizedActionException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
 import com.sparta.payment_system.entity.Order;
@@ -21,108 +26,126 @@ import com.sparta.payment_system.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j(topic = "OrderService")
 @Service
 @Transactional
 @RequiredArgsConstructor
 public class OrderService {
 
-	private final UserRepository userRepository;
-	private final ProductRepository productRepository;
-	private final OrderRepository orderRepository;
-	private final OrderItemRepository orderItemRepository;
+    private final UserRepository userRepository;
+    private final ProductRepository productRepository;
+    private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
 
-	public CreateOrderResponse createOrder(CreateOrderRequest createOrderRequest) {
+    public CreateOrderResponse createOrder(CreateOrderRequest createOrderRequest) {
 
-		Long userId = createOrderRequest.getUserId();
-		User user = userRepository.findById(userId).orElseThrow(
-			() -> new IllegalArgumentException("존재하지 않는 user")
-		);
+        Long userId = createOrderRequest.getUserId();
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new NotFoundException("존재하지 않는 user")
+        );
 
-		BigDecimal totalAmount = BigDecimal.ZERO;
+        BigDecimal totalAmount = BigDecimal.ZERO;
 
-		Order order = new Order(user, totalAmount, PENDING_PAYMENT);
+        Order order = new Order(user, totalAmount, PENDING_PAYMENT);
         orderRepository.save(order);
 
-		List<CreateOrderItemResponse> orderItems = new ArrayList<>();
+        List<CreateOrderItemResponse> orderItems = new ArrayList<>();
 
-		for (CreateOrderItemRequest orderItem : createOrderRequest.getOrderItems()) {
-			Product product = productRepository.findById(orderItem.getProductId()).orElseThrow(
-				() -> new IllegalStateException("존재하지 않는 상품")
-			);
+        for (CreateOrderItemRequest orderItem : createOrderRequest.getOrderItems()) {
+            Product product = productRepository.findById(orderItem.getProductId()).orElseThrow(
+                    () -> new NotFoundException("존재하지 않는 상품")
+            );
 
-			BigDecimal price = product.getPrice();
-			BigDecimal totalPrice =price.multiply(BigDecimal.valueOf(orderItem.getQuantity()));
-			totalAmount = totalAmount.add(totalPrice);
+            //도메인 예외 - 재고보다 주문이 많이 들어온 경우
+            if (product.getStock() - orderItem.getQuantity() <= 0) {
+                throw new InvalidProductQuantityException("재고가 부족합니다");
+            }
 
-			OrderItem saved =OrderItem.builder()
-				.order(order)
-				.product(product)
-				.quantity(orderItem.getQuantity())
-				.price(price)
-				.totalPrice(totalPrice)
-				.build();
-			orderItemRepository.save(saved);
+            BigDecimal price = product.getPrice();
+            BigDecimal totalPrice = price.multiply(BigDecimal.valueOf(orderItem.getQuantity()));
+            totalAmount = totalAmount.add(totalPrice);
 
-			orderItems.add(CreateOrderItemResponse.builder()
-				.productId(product.getProductId())
-				.quantity(orderItem.getQuantity())
-				.price(price)
-				.totalPrice(totalPrice)
-				.build());
-		}
+            OrderItem saved = OrderItem.builder()
+                    .order(order)
+                    .product(product)
+                    .quantity(orderItem.getQuantity())
+                    .price(price)
+                    .totalPrice(totalPrice)
+                    .build();
+            orderItemRepository.save(saved);
 
-		order.updateTotalAmount(totalAmount);
+            orderItems.add(CreateOrderItemResponse.builder()
+                    .productId(product.getProductId())
+                    .quantity(orderItem.getQuantity())
+                    .price(price)
+                    .totalPrice(totalPrice)
+                    .build());
+        }
 
-		return CreateOrderResponse.builder()
-				.userId(userId)
-				.orderId(order.getOrderId())
-				.totalAmount(totalAmount)
-				.orderStatus(PENDING_PAYMENT)
-				.orderItems(orderItems)
-				.createdAt(order.getCreatedAt())
-				.build();
+        order.updateTotalAmount(totalAmount);
 
-	}
+        return CreateOrderResponse.builder()
+                .userId(userId)
+                .orderId(order.getOrderId())
+                .totalAmount(totalAmount)
+                .orderStatus(PENDING_PAYMENT)
+                .orderItems(orderItems)
+                .createdAt(order.getCreatedAt())
+                .build();
 
-	public List<GetOrderResponse> getOrders() {
+    }
 
-		List<GetOrderResponse> orderResponses = new ArrayList<>();
+    public List<GetOrderResponse> getOrders() {
 
-		//OrderStatus 가 PENDING_PAYMENT 인 조건만 전체 조회
-		for (Order order : orderRepository.findAllByStatus(PENDING_PAYMENT)) {
+        List<GetOrderResponse> orderResponses = new ArrayList<>();
 
-			List<GetOrderItemResponse> orderItemResponses = new ArrayList<>();
+        //OrderStatus 가 PENDING_PAYMENT 인 조건만 전체 조회
+        for (Order order : orderRepository.findAllByStatus(PENDING_PAYMENT)) {
 
-			for (OrderItem orderItem : orderItemRepository.findAllByOrder(order)) {
-				orderItemResponses.add(GetOrderItemResponse.builder()
-					.productId(orderItem.getProduct().getProductId())
-					.quantity(orderItem.getQuantity())
-					.price(orderItem.getPrice())
-					.totalPrice(orderItem.getTotalPrice())
-					.build());
-			}
+            List<GetOrderItemResponse> orderItemResponses = new ArrayList<>();
 
-			orderResponses.add(GetOrderResponse.builder()
-					.userId(order.getUser().getUserId())
-					.orderId(order.getOrderId())
-					.totalAmount(order.getTotalAmount())
-					.orderStatus(PENDING_PAYMENT)
-					.orderItems(orderItemResponses)
-					.createdAt(order.getCreatedAt())
-					.build());
-		}
-		return orderResponses;
-	}
+            for (OrderItem orderItem : orderItemRepository.findAllByOrder(order)) {
+                orderItemResponses.add(GetOrderItemResponse.builder()
+                        .productId(orderItem.getProduct().getProductId())
+                        .quantity(orderItem.getQuantity())
+                        .price(orderItem.getPrice())
+                        .totalPrice(orderItem.getTotalPrice())
+                        .build());
+            }
 
-    public GetOrderResponse getOrder(Long orderId) {
+            orderResponses.add(GetOrderResponse.builder()
+                    .userId(order.getUser().getUserId())
+                    .orderId(order.getOrderId())
+                    .totalAmount(order.getTotalAmount())
+                    .orderStatus(PENDING_PAYMENT)
+                    .orderItems(orderItemResponses)
+                    .createdAt(order.getCreatedAt())
+                    .build());
+        }
+        return orderResponses;
+    }
+
+    /**
+     * 단건 조회 (결제 폼)
+     * 자신이 생성한 주문에 대해서만 조회할수있고,
+     * 자신의 주문이 아닌경우에는 조회를 허용하지 않는다
+     */
+    public GetOrderResponse getOrder(Long userId, Long orderId) {
 
         Order order = orderRepository.findByOrderId(orderId).orElseThrow(
-                () -> new IllegalArgumentException("존재하지 않는 orderId")
+                () -> new NotFoundException("존재하지 않는 orderId")
         );
-        //만약 조회 되었을때 PENDING_PAYMENT 가 아니라면 이미 결제된 주문이거나, 취소된 주문이므로 예외를 던진다.
-        if(!order.getStatus().equals(PENDING_PAYMENT)) {
-            throw  new IllegalArgumentException("나중에 커스텀 해야할 예외");
+
+        if (!order.getUser().getUserId().equals(userId)) {
+            throw new UnauthorizedActionException("해당 orderId 를 불러올 권한이 없습니다");
         }
+        //만약 조회 되었을때 PENDING_PAYMENT 가 아니라면 이미 결제된 주문이거나, 취소된 주문이므로 예외를 던진다.
+        if (!order.getStatus().equals(PENDING_PAYMENT)) {
+            throw new NotFoundException("존재하지 않는 orderId");
+        }
+
+        //권한 검증 - 해당 order 가 인가된 user 가 생성한 order 가 맞는지
+
 
         List<GetOrderItemResponse> orderItemResponses = new ArrayList<>();
 

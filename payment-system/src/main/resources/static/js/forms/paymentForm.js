@@ -23,16 +23,23 @@ applyOrderBtn.addEventListener('click', async function () {
     }
     // 1. order 단건 조회로 총 금액 가지고 오기
     try {
-        const res = await fetch(`${API_BASE_URL}/api/orders/${orderId}`, {
+        const orderResponse = await fetch(`${API_BASE_URL}/api/orders/${orderId}`, {
             method: "GET",
             headers: createAuthHeaders(),
         });
-        if (!res.ok) {
-            alert("orderId 를 불러올 수 없습니다.");
+
+        const data = await orderResponse.json();
+
+        if(orderResponse.status === 401) {
+            const msg = data.message
+            alert(msg);
             return;
         }
 
-        const data = await res.json();
+        if (!orderResponse.ok) {
+            alert("orderId 를 불러올 수 없습니다.");
+            return;
+        }
 
         //  성공 시 총금액 input 자동 세팅
         totalAmountInput.value = data.totalAmount || 0;
@@ -44,16 +51,16 @@ applyOrderBtn.addEventListener('click', async function () {
     }
     //2. user_id 로 보유 포인트 가지고 오기
     try {
-        const res = await fetch(`${API_BASE_URL}/api/points`, {
+        const pointResponse = await fetch(`${API_BASE_URL}/api/points`, {
             method: "GET",
             headers: createAuthHeaders(),
         });
-        if (!res.ok) {
+        if (!pointResponse.ok) {
             alert("userId 로 포인트를 불러올 수 없습니다.");
             return;
         }
 
-        const data = await res.json();
+        const data = await pointResponse.json();
 
         //  성공 시 총금액 input 자동 세팅
         userPoint.value = data.points || 0;
@@ -73,11 +80,11 @@ applyOrderBtn.addEventListener('click', async function () {
 getOrdersBtn.addEventListener('click', async function () {
 
     try {
-        const res = await fetch(`${API_BASE_URL}/api/orders`, {
+        const response = await fetch(`${API_BASE_URL}/api/orders`, {
             method: "GET",
             headers: createAuthHeaders(),
         });
-        if (!res.ok) {
+        if (!response.ok) {
             alert("주문 내역 리스트 를 불러올 수 없습니다.");
             return;
         }
@@ -94,11 +101,11 @@ getOrdersBtn.addEventListener('click', async function () {
 getPaymentsBtn.addEventListener('click', async function () {
 
     try {
-        const res = await fetch(`${API_BASE_URL}/api/payments/paid`, {
+        const response = await fetch(`${API_BASE_URL}/api/payments/paid`, {
             method: "GET",
             headers: createAuthHeaders(),
         });
-        if (!res.ok) {
+        if (!response.ok) {
             alert("결제 내역 리스트 를 불러올 수 없습니다.");
             return;
         }

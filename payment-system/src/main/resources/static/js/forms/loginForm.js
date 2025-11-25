@@ -47,10 +47,27 @@ loginBtn.addEventListener('click', async function () {
 
             const data = await response.json();
 
-            if (!response.ok) {
-                alert("로그인에 실패 했습니다.");
-                return
+            // 401 인증 실패 (아이디 틀림)
+            if (response.status === 404) {
+                const msg = data.message
+                alert(msg);
+                return;
             }
+
+            // 400 비밀번호 오류
+            if (response.status === 400) {
+                const msg = data.message
+                alert(msg);
+                return;
+            }
+
+            // 그 외 response.ok가 false인 경우 공통 실패 처리
+            if (!response.ok) {
+                console.log("로그인 실패");
+                return;
+            }
+
+            // ---- 여기 도달하면 로그인 성공 ----
             removeAuthToken()  //이전에 있던 localStorage 의 토큰 지우기
             setAuthToken(data);
             console.log(data.userId, data.email, data.name);

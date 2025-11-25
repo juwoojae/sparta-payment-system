@@ -39,15 +39,24 @@ registerButton.addEventListener('click',async function () {
 
         const data = await response.json();
 
-        if (!response.ok) {
-            console.log("회원가입에 실패했습니다")
+        // Conflict (이메일 중복 등)
+        if (response.status === 409) {
+            const message = data.message;
+            alert(message);   // 서버에서 보낸 에러 메시지 그대로 출력
+            console.log(message)
+            return;
         }
+
+        if(!response.ok){
+            console.log("회원가입 실패")
+            return;
+        }
+
 
         console.log(email, password, userName)
         alert("회원가입에 성공 했습니다")
     } catch (error) {
         console.error('회원가입 오류:', error);
-        showResult('error', `오류: ${error.message}`);
         registerButton.disabled = false;
         registerButton.textContent = '회원가입';
     }
