@@ -46,7 +46,7 @@ jobs:
           port: ${{ secrets.WAS_SSH_PORT }}
           envs: IMAGE_NAME, IMAGE_TAG
           script: |
-            docker stop ${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG || true
-            docker rm ${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG || true
+            docker stop my-server-container || true
+            docker rm my-server-container || true
             docker pull ${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG
-            docker run -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG
+            docker run -d --name my-server-container -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG
