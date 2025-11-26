@@ -16,7 +16,6 @@ export function setAuthToken(data) {
 
     localStorage.setItem('accessToken', data.accessToken);
     localStorage.setItem('refreshToken', data.refreshToken);
-    localStorage.setItem('userId', data.userId);
 }
 
 // localStorage 내용 비우기
@@ -24,7 +23,6 @@ export function removeAuthToken() {
 
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
-    localStorage.removeItem('userId');
     console.log("localStorage clear")
 }
 

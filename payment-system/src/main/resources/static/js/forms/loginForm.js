@@ -53,7 +53,7 @@ loginBtn.addEventListener('click', async function () {
             // ---- 여기 도달하면 로그인 성공 ----
             removeAuthToken()  //이전에 있던 localStorage 의 토큰 지우기
             setAuthToken(data);   // localStorage 에 token 저장하기
-            console.log(data.userId, data.email, data.name);
+            console.log(data.email, data.name);
             alert("로그인 성공");
             await LoginSuccess()
 

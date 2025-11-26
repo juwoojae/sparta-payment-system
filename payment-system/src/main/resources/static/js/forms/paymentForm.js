@@ -163,6 +163,12 @@ paymentBtn.addEventListener('click', async function (e) {
         return;
     }
 
+    // 검증 3. 사용 가능한 포인트보다 더 많이 사용하려는 경우
+    if (points > parseFloat(userPoint.value || 0)) {
+        alert("포인트가 부족합니다.");
+        return;
+    }
+
     alert('결제 금액: ' + final.toLocaleString() + '원\n결제를 진행합니다.');
     // alert 확인 버튼을 누른 후에 바로 실행되는 코드
 
