@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
-
+	//되라
     @PostMapping("/register")
     public ResponseEntity<CreateUserResponse> registerUser(@RequestBody @Valid CreateUserRequest createUserRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.createUser(createUserRequest));
