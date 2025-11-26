@@ -46,3 +46,7 @@ out/
 # Gradle
 .gradle/
 build/
+
+## import
+.env
+.pem

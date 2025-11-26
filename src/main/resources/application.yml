@@ -1,12 +1,12 @@
 spring:
   application:
-    name: ${SPRING_APPLICATION_NAME:payment-system}
+    name: ${SPRING_APPLICATION_NAME:sparta-payment-system}
 
   # mysql setting
   datasource:
     url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/mydb}
-    username: ${SPRING_DATASOURCE_USERNAME:root}
-    password: ${SPRING_DATASOURCE_PASSWORD:12345678}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:com.mysql.cj.jdbc.Driver}
 
   # JPA/Hibernate setting
@@ -22,29 +22,29 @@ spring:
 # PortOne API Configuration
 portone:
   api:
-    secret: ${PORTONE_API_SECRET:wyXJV0i3sypyon5uY8jKJL8HiPXzMJWfm4OvmSkHXnWZ3uVKZ9PtThLmFFwkuAb3y59VJAR1DrbLhtKA}
+    secret: ${PORTONE_API_SECRET:}
     url: ${PORTONE_API_URL:https://api.portone.io/}
 
   # KG inicis with portone
   store:
-    id: ${PORTONE_STORE_ID:store-26aa9b80-8368-41c6-b05a-31b92973ec4e}
+    id: ${PORTONE_STORE_ID:}
 
   channel:
-    key: ${PORTONE_CHANNEL_KEY:channel-key-9625470d-85bd-425f-b68a-7978db63cff7}
+    key: ${PORTONE_CHANNEL_KEY:}
 
   pg:
     mid: ${PORTONE_PG_MID:INIpayTest}
 
   web:
-    signkey: ${PORTONE_WEB_SIGNKEY:SU5JTElURV9UUklQTEVERVNfS0VZU1RS}
+    signkey: ${PORTONE_WEB_SIGNKEY:}
 
   ini:
     api:
-      key: ${PORTONE_INI_API_KEY:ItEQKi3rY7uvDS8l}
-      iv: ${PORTONE_INI_API_IV:HYb3yQ4f65QL89==}
+      key: ${PORTONE_INI_API_KEY:}
+      iv: ${PORTONE_INI_API_IV:}
 
   webhook:
-    secret: ${PORTONE_WEBHOOK_SECRET:https://smee.io/ayLYc1ZQ3fiJrfH}
+    secret: ${PORTONE_WEBHOOK_SECRET:}
 
 # Jwt token secret
 jwt:
