@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주문 금액 계산기</title>
+    <script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="input-group">
+        <label for="orderId">주문 ID</label>
+        <input type="text" id="orderId" placeholder="order_id: 1">
+
+        <button id="applyOrderBtn">적용</button>
+    </div>
+    <div class="input-group">
+        <label for="totalAmount">주문 총금액</label>
+        <input type="number" id="totalAmount" readonly>
+    </div>
+
+    <div>
+        <label>보유 포인트</label><br>
+        <input type="number" id="userPoint" readonly>
+    </div>
+
+    <div class="input-group">
+        <label for="points">사용할 포인트</label>
+        <input type="number" id="points" placeholder="포인트를 입력하세요">
+    </div>
+
+    <div class="result">
+        <div class="result-label">최종 결제 금액</div>
+        <div class="result-formula" id="formula">-</div>
+        <div class="result-amount" id="finalAmount">-</div>
+    </div>
+
+    <div style="margin-top: 16px;">
+        <button id="getOrdersBtn">주문 조회</button>
+        <button id="getPaymentsBtn">결제 조회</button>
+        <button id="paymentBtn">결제하기</button>
+        <button id="logoutBtn">로그아웃</button>
+    </div>
+
+</div>
+
+<script th:inline="javascript">
+    // 타임리프를 이용해서 moodel 로 portOne 연동에 필요한 값 받아오기
+    const STORE_ID = [[${storeId}]];       // 서버에서 model.addAttribute로 전달한 storeId
+    const CHANNEL_KEY = [[${channelKey}]]; // 서버에서 model.addAttribute로 전달한 channelKey
+    const USER_ID = [[${userId}]];         // 서버에서 model.addAttribute로 전달한 userId (숫자)
+    const PAYMENT_ID = [[${paymentId}]];   // 서버에서 model.addAttribute로 전달한 paymentId
+
+    console.log(STORE_ID, CHANNEL_KEY, USER_ID, PAYMENT_ID);
+
+</script>
+
+<script type="module" src="/js/forms/paymentForm.js"></script>
+</body>
+</html>

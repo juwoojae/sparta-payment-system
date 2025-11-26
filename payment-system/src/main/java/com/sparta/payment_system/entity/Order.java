@@ -1,52 +1,56 @@
 package com.sparta.payment_system.entity;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import jakarta.persistence.*;
+import java.math.BigDecimal;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Table(name = "orders")
 @Getter
-@Setter
 @NoArgsConstructor
-public class Order {
-    
-    @Id
-    @Column(name = "order_id", length = 255)
-    private String orderId;
-    
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
-    
-    @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
-    private BigDecimal totalAmount;
-    
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 50)
-    private OrderStatus status;
-    
-    @CreationTimestamp
-    @Column(name = "ordered_at", nullable = false, updatable = false)
-    private LocalDateTime orderedAt;
-    
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
-    private List<OrderItem> orderItems = new ArrayList<>();
-    
-    // 외래키 제약조건 문제를 방지하기 위해 일시적으로 주석 처리
-    // @OneToOne(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    // @JsonManagedReference
-    // private Payment payment;
-    
-    public enum OrderStatus {
-        PENDING_PAYMENT, COMPLETED, CANCELLED
-    }
+public class Order extends BaseTimeEntity {
+
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "order_id")
+	private Long orderId;
+
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
+
+	@Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
+	private BigDecimal totalAmount;
+
+	@Enumerated(EnumType.STRING)
+	@Column(name = "status", nullable = false, length = 50)
+	private OrderStatus status;
+
+	@Builder
+	public Order(User user, BigDecimal totalAmount, OrderStatus status) {
+		this.user = user;
+		this.totalAmount = totalAmount;
+		this.status = status;
+	}
+
+	public void updateTotalAmount(BigDecimal totalAmount) {
+		this.totalAmount = totalAmount;
+	}
+
+	public void updateOrderStatus(OrderStatus status) {
+		this.status = status;
+	}
 }
