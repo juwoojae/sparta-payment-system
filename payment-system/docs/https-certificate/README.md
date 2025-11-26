@@ -1,5 +1,6 @@
 
 ``` bash
+추가
 # https 반영하기 위한 caddy 사용 힌트
 
 # 1. Caddy 설치 방법 (Amazon Linux 2023)
