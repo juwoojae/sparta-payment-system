@@ -1,6 +1,6 @@
 import {createAuthHeaders, getRefreshToken, removeAuthToken, setAuthToken} from "../modules/token.js";
 
-const API_BASE_URL = "http://localhost:8080";  //api 공통 시작부
+const API_BASE_URL = "http://3.38.132.188:8080/";  //api 공통 시작부
 
 //dom Element 객체 반환
 const totalAmountInput = document.getElementById('totalAmount');
