@@ -46,9 +46,8 @@ jobs:
           port: ${{ secrets.WAS_SSH_PORT }}
           envs: IMAGE_NAME, IMAGE_TAG
           script: |
-            docker stop my-server-container || true
-            docker rm my-server-container || true
-            docker container prune -f
+            docker rm -f my-server-container || true
+            fuser -k 8080/tcp || true
             docker network prune -f
             docker pull ${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG
             docker run -d --name my-server-container -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/$IMAGE_NAME:$IMAGE_TAG
