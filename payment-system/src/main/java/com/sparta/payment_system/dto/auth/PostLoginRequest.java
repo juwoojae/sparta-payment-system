@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class PostLoginRequest {
+
     private String email;
     private String password;
 }
