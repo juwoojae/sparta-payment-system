@@ -4,7 +4,7 @@ spring:
 
   # mysql setting
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://my-db:3306/mydb}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/mydb}
     username: ${SPRING_DATASOURCE_USERNAME:root}
     password: ${SPRING_DATASOURCE_PASSWORD:12345678}
     driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:com.mysql.cj.jdbc.Driver}
