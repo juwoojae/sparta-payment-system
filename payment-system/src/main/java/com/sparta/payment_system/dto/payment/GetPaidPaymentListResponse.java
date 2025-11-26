@@ -18,7 +18,6 @@ public class GetPaidPaymentListResponse {
 	private String paymentMethod;
 
 	private PaymentStatus paymentStatus;
-	private LocalDateTime paidAt;
 
 	private boolean canRefund;
 }

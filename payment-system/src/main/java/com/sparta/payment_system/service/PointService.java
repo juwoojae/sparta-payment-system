@@ -112,9 +112,11 @@ public class PointService {
 	}
 
 	//모든 pointTransaction 에서 userId 인 것만 찾은후, totalPoints 계산하기
-	public GetPointsResponse getUserTotalPoints(GetPointsRequest getPointsRequest) {
+	@Transactional
+	public GetPointsResponse getUserTotalPoints(Long userId) {
 
-		int points = pointTransactionRepository.getTotalPointsByUserId(getPointsRequest.getUserId());
+		int points = pointTransactionRepository.getTotalPointsByUserId(userId);
 		return new GetPointsResponse(points);
 	}
+
 }

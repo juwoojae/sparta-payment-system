@@ -14,6 +14,7 @@ import com.sparta.payment_system.dto.order.CreateOrderResponse;
 import com.sparta.payment_system.dto.order.GetOrderResponse;
 import com.sparta.payment_system.service.OrderService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import static org.springframework.http.HttpStatus.*;
@@ -27,7 +28,7 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<CreateOrderResponse> createOrder(@RequestBody CreateOrderRequest createOrderRequest) {
+    public ResponseEntity<CreateOrderResponse> createOrder(@RequestBody @Valid CreateOrderRequest createOrderRequest) {
 
         return ResponseEntity.status(CREATED).body(orderService.createOrder(createOrderRequest));
     }

@@ -78,9 +78,7 @@ public class AuthService {
     public void userLogout(PostLogoutRequest postLogoutRequest) {
         String refreshToken = postLogoutRequest.getRefreshToken();
 
-        if (!jwtUtils.validateToken(refreshToken).isEmpty()) {
-            return;
-        }
+		jwtUtils.validateToken(refreshToken);  //여기서 검증처리
 
         Long userId = jwtUtils.getUserIdFromRefreshToken(refreshToken);
 

@@ -1,9 +1,11 @@
 package com.sparta.payment_system.controller;
 
 import com.sparta.payment_system.dto.auth.*;
-import com.sparta.payment_system.entity.User;
 import com.sparta.payment_system.service.AuthService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,7 +21,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<CreateUserResponse> registerUser(@RequestBody CreateUserRequest createUserRequest) {
+    public ResponseEntity<CreateUserResponse> registerUser(@RequestBody @Valid CreateUserRequest createUserRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.createUser(createUserRequest));
     }
 

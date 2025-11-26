@@ -3,6 +3,7 @@ package com.sparta.payment_system.exception;
 import static org.springframework.http.HttpStatus.*;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -15,25 +16,18 @@ import lombok.extern.slf4j.Slf4j;
 public class GlobalExceptionHandler {
 
 	/**
-	 * 1. @Valid 유효성 검사 실패 시 처리
+	 * . @Valid 유효성 검사 실패 시 처리
 	 */
-	// @ExceptionHandler(MethodArgumentNotValidException.class)
-	// public ResponseEntity<CommonResponse<Map<String, String>>> handleValidationExceptions(
-	// 	MethodArgumentNotValidException ex) {
-	//
-	// 	Map<String, String> errors = new HashMap<>();
-	//
-	// 	// 각 필드별 오류 메시지를 Map에 저장
-	// 	ex.getBindingResult().getFieldErrors().forEach(error -> {
-	// 		errors.put(error.getField(), error.getDefaultMessage());
-	// 	});
-	//
-	// 	return ResponseEntity.status(BAD_REQUEST).body(CommonResponse.of(VALIDATION_ERROR, errors));
-	// }
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+
+		ErrorResponse errorResponse = new ErrorResponse(ex.getMessage());
+		return ResponseEntity.status(BAD_REQUEST).body(errorResponse);
+	}
 
 
 	/**
-	 * 3. 존재하지않는 엔티티 조회
+	 * 존재하지않는 엔티티 조회
 	 */
 	@ExceptionHandler(NotFoundException.class)
 	public ResponseEntity<ErrorResponse> handleRuntime(NotFoundException ex) {

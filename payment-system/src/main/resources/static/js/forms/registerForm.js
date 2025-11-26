@@ -57,8 +57,6 @@ registerButton.addEventListener('click',async function () {
         alert("회원가입에 성공 했습니다")
     } catch (error) {
         console.error('회원가입 오류:', error);
-        registerButton.disabled = false;
-        registerButton.textContent = '회원가입';
     }
 });
 

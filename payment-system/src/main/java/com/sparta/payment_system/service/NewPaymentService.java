@@ -139,7 +139,6 @@ public class NewPaymentService {
 				p.getAmount(),
 				p.getPaymentMethod(),
 				p.getStatus(),
-				p.getPaidAt(),
 				p.getStatus() == PaymentStatus.PAID
 			))
 			.toList();
@@ -150,6 +149,7 @@ public class NewPaymentService {
 	private PaymentStatus mapPortOneStatus(String rawStatus) {
 		if (rawStatus == null) {
 			return PaymentStatus.FAILED;
+		}
 		return switch (rawStatus.toUpperCase()) {
 			case "PAID" -> PaymentStatus.PAID;
 			case "CANCELLED", "CANCELED" -> PaymentStatus.REFUNDED;

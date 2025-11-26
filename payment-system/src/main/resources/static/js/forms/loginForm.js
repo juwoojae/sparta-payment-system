@@ -1,4 +1,4 @@
-
+import {createAuthHeaders, removeAuthToken, setAuthToken} from "../modules/token.js";
 
 const API_BASE_URL = "http://localhost:8080";  //api 공통 시작부
 
@@ -7,23 +7,6 @@ const emailInput = document.getElementById('emailInput');
 const passwordInput = document.getElementById('passwordInput');
 const loginBtn = document.getElementById('loginBtn');
 const registerBtn = document.getElementById('registerBtn');
-
-// localStorage setter
-function setAuthToken(data) {
-
-    localStorage.setItem('accessToken', data.accessToken);
-    localStorage.setItem('refreshToken', data.refreshToken);
-    localStorage.setItem('userId', data.userId);
-}
-
-// localStorage 내용 비우기
-function removeAuthToken() {
-
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('userId');
-    console.log("localStorage clear")
-}
 
 // 로그인 처리
 loginBtn.addEventListener('click', async function () {
@@ -69,8 +52,8 @@ loginBtn.addEventListener('click', async function () {
 
             // ---- 여기 도달하면 로그인 성공 ----
             removeAuthToken()  //이전에 있던 localStorage 의 토큰 지우기
-            setAuthToken(data);
-            console.log(data.userId, data.email, data.name);
+            setAuthToken(data);   // localStorage 에 token 저장하기
+            console.log(data.email, data.name);
             alert("로그인 성공");
             await LoginSuccess()
 
@@ -84,14 +67,18 @@ loginBtn.addEventListener('click', async function () {
 //로그인 성공시 호출하는 메서드
 async function LoginSuccess()  {
 
-    try {
-        window.location.href = `${API_BASE_URL}/api/payment`;
-        alert("결제 화면을 불러옵니다");
+    const response = await fetch(`${API_BASE_URL}/api/payment`, {
+        method: "GET",
+        headers: createAuthHeaders()
+    });
 
-    } catch (e) {
-        console.error(e);
-        alert("서버 요청 중 오류 발생");
+    if (!response.ok) {
+        alert("요청 실패");
+        return;
     }
+
+    window.location.href = "/api/payment";   // or 원하는 화면
+
 }
 //로그인 실패시 호출하는 메서드
 // 미 구현
