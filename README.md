@@ -62,5 +62,5 @@ payment-system/
 │   ├── static/          # 결제 JS, HTML 화면
 │   ├── templates/       # Thymeleaf View
 │   └── application.yml  # DB / PortOne 설정
-└── PaymentSystemApplication.java
+└── PaymentSystemApplication.java 
 ```

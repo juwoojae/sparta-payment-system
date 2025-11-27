@@ -11,7 +11,7 @@ on:
       - Develop
 
 env:
-  DOCKER_IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/payment-security
+  DOCKER_IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/point-payment
   DOCKER_IMAGE_TAG: ${{ github.sha }}
 
 jobs:

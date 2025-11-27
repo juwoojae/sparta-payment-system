@@ -9,7 +9,7 @@ on:
       - main
 
 env:
-  DOCKER_IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/payment-security
+  DOCKER_IMAGE_NAME: ${{ secrets.DOCKER_USERNAME }}/point-payment
 
 jobs:
   deploy:
@@ -48,6 +48,9 @@ jobs:
               --restart unless-stopped \
               -p 8080:8080 \
               -e SPRING_PROFILES_ACTIVE=prod \
+              -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
+              -e JWT_ACCESS_TOKEN_EXPIRATION=${{ secrets.JWT_ACCESS_TOKEN_EXPIRATION }} \
+              -e JWT_REFRESH_TOKEN_EXPIRATION=${{ secrets.JWT_REFRESH_TOKEN_EXPIRATION }} \
               ${{ env.DOCKER_IMAGE_NAME }}:${{ steps.get-sha.outputs.sha }}
 
             # 사용하지 않는 이미지 정리
