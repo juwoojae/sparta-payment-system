@@ -59,7 +59,7 @@ public class NewPaymentController {
 			? cancelRequest.getReason()
 			: "사용자에 의한 요청 취소";
 
-		//log.info("취소 요청: impUid={}, reason={}", impUid, reason);
+		log.info("취소 요청: impUid={}, reason={}", impUid, reason);
 
 		return newPaymentService.cancelPayment(impUid, reason)
 			.map(result -> {
