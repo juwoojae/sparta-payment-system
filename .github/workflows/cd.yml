@@ -46,6 +46,7 @@ jobs:
             docker run -d \
               --name security-app \
               --restart unless-stopped \
+              --network payment-net \ 
               -p 8080:8080 \
               -e SPRING_PROFILES_ACTIVE=prod \
               -e JWT_SECRET=${{ secrets.JWT_SECRET }} \
